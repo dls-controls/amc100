@@ -23,6 +23,7 @@ include $(TOP)/configure/CONFIG
 
 #USES_TEMPLATE += $(MOTOR)/db/motor.template
 #USES_TEMPLATE += $(MOTOR)/db/basic_motor.template
+DB += amc100.template
 
 include $(TOP)/configure/RULES
 #----------------------------------------

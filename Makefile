@@ -5,6 +5,9 @@ DIRS := $(DIRS) $(filter-out $(DIRS), configure)
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard *App))
 DIRS := $(DIRS) $(filter-out $(DIRS), $(wildcard iocBoot))
 
+# So we remove data on uninstall
+UNINSTALL_DIRS += ./data
+
 define DIR_template
  $(1)_DEPEND_DIRS = configure
 endef

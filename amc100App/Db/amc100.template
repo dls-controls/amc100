@@ -1,0 +1,20 @@
+###########################################################
+# Template File for Attocube AMC100 Controller
+#
+# Macros:
+# % macro,  P,    Prefix for PV name
+# % macro,  PORT, Driver Asyn Port Name
+# % macro,  ADDR, Asyn Port Address
+# % macro,  SCAN, SCAN rate for read parameters.
+# % macro,  name, object and gui association name
+# % macro,  DESC, Description
+
+# % gui, $(name=), edm, amc100.edl, P=$(P)
+
+###########################################################
+
+record(longin, "$(P):FIRMWARE_VER") {
+    field(DTYP, "asynOctetRead")
+    field(INP, "@asyn($(PORT) 0)AMC_FIRMWARE")
+    field(SCAN, "I/O Intr")
+}
