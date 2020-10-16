@@ -3,13 +3,13 @@ from iocbuilder.arginfo import *
 from iocbuilder.modules.asyn import Asyn, AsynPort
 # from iocbuilder.modules.motor import MotorLib, MotorRecord
 
-class _amc100Controller(AutoSubstitution):
+class _amc100Template(AutoSubstitution):
     TemplateFile = "amc100.template"
 
 # class _amc100Motor(AutoSubstitution):
 #     TemplateFile = "amc100Motor.template"
 
-class amc100(AsynPort):
+class amc100(Device):
 
     Dependencies = (Asyn,)  # MotorLib
     LibFileList = ['amc100']
@@ -19,15 +19,19 @@ class amc100(AsynPort):
 
     def __init__(self, name, **args):
         self.__super.__init__()
+
         self.name = name
-        self.port = args['PORT']
-        self.address = args['ADDR']
+        self.PORT = args['PORT']
+
+        args['PORT'] = name
+        _amc100Template(**args)
 
     def InitialiseOnce(self):
-        print('# Driver for Attocube AMC100 Controller\n', '# AMC100Config(portName, serverPort, serverPortAddress)')
+        print '# Driver for Attocube AMC100 Controller'
 
     def Initialise(self):
-        print('AMC100Config({name}, {port}, {address})').format(name = self.name, port = self.port, address = self.address)
+        print "amc100DriverCreate(\"{0}\", \"{1}\")".format(self.name, self.PORT)
 
     # Tell xmlbuilder what args to supply
-    ArgInfo = _amc100Controller.ArgInfo + makeArgInfo(__init__, name = Simple("Object and asyn port name", str))
+    ArgInfo = _amc100Template.ArgInfo + makeArgInfo(__init__,
+        name = Simple("Object and asyn port name", str))
