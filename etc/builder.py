@@ -1,37 +1,68 @@
-from iocbuilder import AutoSubstitution, Device
-from iocbuilder.arginfo import *
+from iocbuilder import Device, AutoSubstitution
 from iocbuilder.modules.asyn import Asyn, AsynPort
-# from iocbuilder.modules.motor import MotorLib, MotorRecord
+from iocbuilder.modules.motor import MotorLib
+from iocbuilder.arginfo import *
 
-class _amc100Template(AutoSubstitution):
-    TemplateFile = "amc100.template"
 
-# class _amc100Motor(AutoSubstitution):
-#     TemplateFile = "amc100Motor.template"
-
-class amc100(Device):
-
-    Dependencies = (Asyn,)  # MotorLib
+class amc100Controller(AutoSubstitution, Device):
     LibFileList = ['amc100']
     DbdFileList = ['amc100']
+    Dependencies = (Asyn, MotorLib) 
+    
+    TemplateFile = 'amc100Controller.template'
 
-    IsAsyn = True
-
-    def __init__(self, name, **args):
-        self.__super.__init__()
-
+    def __init__(self, name, serial_port, P, R, timeout,
+            controller_address = 1, asyn_address = 0, max_axes = 3,
+            moving_poll = 1000, standing_poll = 1000):
         self.name = name
-        self.PORT = args['PORT']
+        self.controller_address = controller_address
+        self.serial_port = serial_port
+        self.asyn_address = asyn_address
+        self.max_axes = max_axes
+        self.moving_poll = moving_poll
+        self.standing_poll = standing_poll
 
-        args['PORT'] = name
-        _amc100Template(**args)
-
-    def InitialiseOnce(self):
-        print '# Driver for Attocube AMC100 Controller'
+        self.__super.__init__(P = P, R = R, PORT = name, TIMEOUT = timeout)
 
     def Initialise(self):
-        print "amc100DriverCreate(\"{0}\", \"{1}\")".format(self.name, self.PORT)
+        print 'amc100ControllerConfig("%(name)s", %(controller_address)d, ' \
+            '"%(serial_port)s", %(asyn_address)d, %(max_axes)d, ' \
+            '%(moving_poll)d, %(standing_poll)d)' % self.__dict__
 
-    # Tell xmlbuilder what args to supply
-    ArgInfo = _amc100Template.ArgInfo + makeArgInfo(__init__,
-        name = Simple("Object and asyn port name", str))
+    ArgInfo = makeArgInfo(__init__,
+        name = Simple('Identifier for this motor instance', str),
+        serial_port = Ident('Serial port to connect to', AsynPort),
+        P = Simple('PV names Prefix (for motor record)', str),
+        R = Simple('PV Name R component (for motor record)', str),
+        timeout = Simple('timeout for serial communications', float),
+        controller_address = Simple('controller number - usually 1', int),
+        asyn_address = Simple('address of device on asyn serial port (usually 0)', int),
+        max_axes = Simple('number of axes required', int),
+        moving_poll = Simple('How frequently to poll the device when an axes is moving (ms)', int),
+        standing_poll = Simple('How frequently to poll the device when all axes are stationary (ms)', int))
+
+    def __str__(self):
+        return self.name
+
+
+class MotorAxis(AutoSubstitution, Device):
+    Dependencies = (amc100Controller,)
+    TemplateFile = 'amc100Axis.template'
+
+    def __init__(self, controller, axis, P, R, timeout):
+        self.controller = controller
+        self.axis = axis
+
+        self.__super.__init__(
+            P = P, R = R, PORT = controller, AXIS = axis,
+            TIMEOUT = timeout)
+
+    def Initialise(self):
+        print 'amc100AxisConfig("%(controller)s", %(axis)d)' % self.__dict__
+
+    ArgInfo = makeArgInfo(__init__,
+        controller = Ident('amc100 Piezo Controller', amc100Controller),
+        axis = Simple('Axis number', int),
+        P = Simple('PV names Prefix (for motor record)', str),
+        R = Simple('PV Name R component (for motor record)', str),
+        timeout = Simple('Timeout for serial communications', float))

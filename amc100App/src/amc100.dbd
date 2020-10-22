@@ -1,1 +1,1 @@
-registrar("amc100DriverRegister")
+registrar(amc100Register)

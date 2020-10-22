@@ -1,8 +1,6 @@
 /*
  * amc100Axis.cpp
  *
- *  Created on: 4 Oct 2011
- *      Author: hgv27681
  */
 
 #include <stdlib.h>
@@ -37,20 +35,20 @@ amc100Axis::~amc100Axis()
 asynStatus amc100Axis::move(double position, int relative,
         double minVelocity, double maxVelocity, double acceleration)
 {
-	bool result = false;
-	unsigned char txBuffer[controller->TXBUFFERSIZE];
-	unsigned char rxBuffer[controller->RXBUFFERSIZE];
+	// bool result = false;
+	// unsigned char txBuffer[controller->TXBUFFERSIZE];
+	// unsigned char rxBuffer[controller->RXBUFFERSIZE];
 
-	// Brute force attempt to ensure that the controller is in a state to accept the
-	// move command even if it has been rebooted or reset
-	// TODO a better solution would be to check status and perform this step if required
-	//  controller->command(amc100AxesNumbers[axisNum],cmdSetEncLimits,txBuffer,8,rxBuffer,0);
-	//  controller->command(amc100AxesNumbers[axisNum],cmdSetSilentPark,txBuffer,1,rxBuffer,0);
-	controller->command(amc100AxesNumbers[axisNum],cmdTargetModeOn,txBuffer,0,rxBuffer,0);
+	// // Brute force attempt to ensure that the controller is in a state to accept the
+	// // move command even if it has been rebooted or reset
+	// // TODO a better solution would be to check status and perform this step if required
+	// //  controller->command(amc100AxesNumbers[axisNum],cmdSetEncLimits,txBuffer,8,rxBuffer,0);
+	// //  controller->command(amc100AxesNumbers[axisNum],cmdSetSilentPark,txBuffer,1,rxBuffer,0);
+	// controller->command(amc100AxesNumbers[axisNum],cmdTargetModeOn,txBuffer,0,rxBuffer,0);
 
-	// request the new Target position
-	controller->EncodeInt((int)position,txBuffer);
-	result = controller->command(amc100AxesNumbers[axisNum],cmdSetPos,txBuffer,4,rxBuffer,0);
+	// // request the new Target position
+	// controller->EncodeInt((int)position,txBuffer);
+	// result = controller->command(amc100AxesNumbers[axisNum],cmdSetPos,txBuffer,4,rxBuffer,0);
 
     return asynSuccess;
 }
@@ -75,7 +73,7 @@ asynStatus amc100Axis::moveVelocity(double minVelocity,
 asynStatus amc100Axis::home(double minVelocity, double maxVelocity,
         double acceleration, int forwards)
 {
-    return asynSucces;
+    return asynSuccess;
 }
 
 /** Stop axis command
@@ -83,10 +81,11 @@ asynStatus amc100Axis::home(double minVelocity, double maxVelocity,
  */
 asynStatus amc100Axis::stop(double acceleration)
 {
-	bool result = true;
-	unsigned char rxBuffer[controller->RXBUFFERSIZE];
+	// bool result = true;
+	// unsigned char rxBuffer[controller->RXBUFFERSIZE];
 
-    return result ? asynSuccess : asynError;
+    // return result ? asynSuccess : asynError;
+    return asynSuccess;
 }
 
 /** Poll the axis, start moves when possible, etc.  This function is
@@ -95,45 +94,45 @@ asynStatus amc100Axis::stop(double acceleration)
  */
 asynStatus amc100Axis::poll(bool* moving)
 {
-    unsigned char rxBuffer[controller->RXBUFFERSIZE];
+    // unsigned char rxBuffer[controller->RXBUFFERSIZE];
 
-    if(!initialized)
-    {
-    	initialized = firstTimeInit();
-    }
+    // if(!initialized)
+    // {
+    // 	initialized = firstTimeInit();
+    // }
 
-    if(controller->command(amc100AxesNumbers[axisNum],cmdReadPos,NULL,0,rxBuffer,4))
-    {
-		curPosition = controller->DecodeInt32(rxBuffer);
+    // if(controller->command(amc100AxesNumbers[axisNum],cmdReadPos,NULL,0,rxBuffer,4))
+    // {
+	// 	curPosition = controller->DecodeInt32(rxBuffer);
 
-		setDoubleParam(controller->motorEncoderPosition_, (double)curPosition);
-		setDoubleParam(controller->motorPosition_, (double)curPosition);
-    }
+	// 	setDoubleParam(controller->motorEncoderPosition_, (double)curPosition);
+	// 	setDoubleParam(controller->motorPosition_, (double)curPosition);
+    // }
 
-    if(controller->command(amc100AxesNumbers[axisNum],cmdReadStatus,NULL,0,rxBuffer,1))
-    {
-    	// TODO - stuff like this should probably be defined in controller class
-    	// AND the command function should be overloaded - not require the caller to use Decode etc.
-    	char status = rxBuffer[0];
-    	bool running = (status & 1);
-    	// bool targetPass = (status & 4);
-    	// bool encoderLimit = (status & 64);
-    	// bool error = (status & 128);
+    // if(controller->command(amc100AxesNumbers[axisNum],cmdReadStatus,NULL,0,rxBuffer,1))
+    // {
+    // 	// TODO - stuff like this should probably be defined in controller class
+    // 	// AND the command function should be overloaded - not require the caller to use Decode etc.
+    // 	char status = rxBuffer[0];
+    // 	bool running = (status & 1);
+    // 	// bool targetPass = (status & 4);
+    // 	// bool encoderLimit = (status & 64);
+    // 	// bool error = (status & 128);
 
-        setIntegerParam(controller->motorStatusDone_, !running);
-        setIntegerParam(controller->motorStatusMoving_, running);
-    }
+    //     setIntegerParam(controller->motorStatusDone_, !running);
+    //     setIntegerParam(controller->motorStatusMoving_, running);
+    // }
 
-    setIntegerParam(controller->motorStatusHighLimit_, 0);
-    setIntegerParam(controller->motorStatusLowLimit_, 0);
-    setIntegerParam(controller->motorStatusHasEncoder_, 0);
-    setDoubleParam(controller->motorVelocity_, 0.0);
-    setIntegerParam(controller->motorStatusSlip_, 0);
-    setIntegerParam(controller->motorStatusCommsError_, 0);
-    setIntegerParam(controller->motorStatusFollowingError_, 0);
-    setIntegerParam(controller->motorStatusProblem_, 0);
+    // setIntegerParam(controller->motorStatusHighLimit_, 0);
+    // setIntegerParam(controller->motorStatusLowLimit_, 0);
+    // setIntegerParam(controller->motorStatusHasEncoder_, 0);
+    // setDoubleParam(controller->motorVelocity_, 0.0);
+    // setIntegerParam(controller->motorStatusSlip_, 0);
+    // setIntegerParam(controller->motorStatusCommsError_, 0);
+    // setIntegerParam(controller->motorStatusFollowingError_, 0);
+    // setIntegerParam(controller->motorStatusProblem_, 0);
 
-    callParamCallbacks();
+    // callParamCallbacks();
 
     return asynSuccess;
 }

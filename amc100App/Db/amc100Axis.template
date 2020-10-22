@@ -1,0 +1,47 @@
+# Template file for Piezo Axes
+#
+# Parameters:
+#% macro, P,  EPICS name prefix
+#% macro, R,  EPICS name suffix
+#% macro, PORT,  Asyn port
+#% macro, AXIS,  Axis number
+#% macro, TIMEOUT,  Timeout
+
+record(bo, "$(P)$(R):ACTIVEHOLD")
+{
+    field(SCAN, "Passive")
+    field(DTYP, "asynInt32")
+    field(VAL,  "0")
+    field(OUT,  "@asyn($(PORT),$(AXIS),$(TIMEOUT))ACTIVE_HOLD")
+    field(PINI, "1")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+}
+
+record(longout, "$(P)$(R):AMPLITUDE")
+{
+    field(SCAN, "")
+    field(DTYP, "")
+    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))AMPLITUDE")
+}
+
+record(longout, "$(P)$(R):FREQUENCY")
+{
+    field(SCAN, "")
+    field(DTYP, "")
+    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))FREQUENCY")
+}
+
+#record(longout, "$(P)$(R):VOLTAGE")
+#{
+#    field(SCAN, "")
+#    field(DTYP, "")
+#    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))VOLTAGE")
+#}
+
+#record(longout, "$(P)$(R):AXIS$(AXIS):POSITION")
+#{
+#    field(SCAN, "")
+#    field(DTYP, "")
+#    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))POSITION")
+#}

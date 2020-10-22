@@ -22,7 +22,10 @@
 #define indexSystemIdString "SYSTEM_ID"
 #define indexActiveHoldString "ACTIVE_HOLD"
 #define indexAmplitudeString "AMPLITUDE"
-#define indexFrequencyString "FREQUENCY"
+#define indexErrorString "ERROR"
+#define indexFirmwareString "FIRMWARE"
+// #define indexFrequencyString "FREQUENCY"
+// #define indexVoltageString "VOLTAGE"
 
 
 class amc100Controller : public asynMotorController {
@@ -49,7 +52,9 @@ protected:
     int indexSystemId;
     int indexActiveHold;
     int indexAmplitude;
-    int indexFrequency;
+    int indexFirmware;
+    int indexError;
+    // int indexFrequency;
     int lastParam;
 
 private:
@@ -68,11 +73,13 @@ private:
 
     /* Communication Methods */
     bool firstTimeInit();
-    bool readBoxFirmware();
-    bool readBoxStatus();
-    bool readAmplitude();
-    bool readFrequency();
-    bool sendReceive(const unsigned char* tx, size_t txSize, unsigned char* rx, size_t rxSize);
+    // bool readBoxFirmware();
+    // bool readBoxStatus();
+    // bool readAmplitude(int axisNum);
+    bool readFirmwareVer();
+    bool errorNumberToString(int errorNum);
+    // bool readFrequency(int axisNum);
+    bool sendReceive(const char* tx, size_t txSize, char* rx, size_t rxSize);
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);
 };

@@ -20,8 +20,8 @@ DBD += amc100.dbd
 # amc100.dbd will be created from these files
 amc100_DBD += base.dbd
 amc100_DBD += asyn.dbd
-
-amc100_SRCS += amc100Driver.cpp
+amc100_DBD += motorSupport.dbd
+amc100_DBD += amc100.dbd
 
 # amc100_registerRecordDeviceDriver.cpp will be created
 # amc100.dbd
@@ -32,11 +32,13 @@ amc100_SRCS_DEFAULT += amc100Main.cpp
 amc100_SRCS_vxWorks += -nil-
 
 # Add locally compiled object code
-#amc100_SRCS +=
+amc100_SRCS += amc100Controller.cpp
+amc100_SRCS += amc100Axis.cpp
 
 # This line says that this IOC Application depends on the
 # xxx Support Module
 amc100_LIBS += asyn
+amc100_LIBS += motor
 
 # We need to link this IOC Application against the EPICS Base libraries
 amc100_LIBS += $(EPICS_BASE_IOC_LIBS)

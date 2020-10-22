@@ -1,8 +1,6 @@
 /*
  * amc100Controller.cpp
- *
- *  Created on: 4 Oct 2011
- *      Author: hgv27681
+ * TODO: Capitalise class names to follow convention
  */
 
 #include <stdlib.h>
@@ -18,8 +16,8 @@
 #include "amc100Controller.h"
 #include "asynOctetSyncIO.h"
 #include "asynCommonSyncIO.h"
-#define DEBUG 1
-
+// #ifdef NDEBUG
+// #include <assert.h>
 
 
 /*******************************************************************************
@@ -56,7 +54,9 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     createParam(indexSystemIdString, asynParamInt32, &indexSystemId);
     createParam(indexActiveHoldString, asynParamInt32, &indexActiveHold);
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
-    createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
+    createParam(indexFirmwareString, asynParamInt32, &indexFirmware);
+    createParam(indexErrorString, asynParamInt32, &indexError);
+    // createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
 
     // Initialise our parameters
     setIntegerParam(indexVersionHigh, 0);
@@ -66,7 +66,9 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexSystemId, 0);
     setIntegerParam(indexActiveHold, 0);
     setIntegerParam(indexAmplitude, 0);
-    setIntegerParam(indexFrequency, 0);
+    setIntegerParam(indexFirmware, 0);
+    setStringParam(indexError, "");
+    // setIntegerParam(indexFrequency, 0);
 
     // Connect to the serial port
     asynStatus result = pasynOctetSyncIO->connect(serialPortName, serialPortAddress,
@@ -110,18 +112,19 @@ asynStatus amc100Controller::poll()
         	initialized = true;
         	firstTimeInit();
         }
-        result = readAmplitude();
-        result = readFrequency();
+        // result = readAmplitude(0);
+        result = readFirmwareVer();
+        // result = readFrequency(axisNum);
         // result = readBoxStatus();
-        // if(!result)
-        // {
-        // 	setIntegerParam(indexConnected, 0);
-        // }
-        // else
-        // {
-        // 	setIntegerParam(indexConnected, 1);
+        if(!result)
+        {
+        	setIntegerParam(indexConnected, 0);
+        }
+        else
+        {
+        	setIntegerParam(indexConnected, 1);
         // 	readBoxFirmware();
-        // }
+        }
     }
 
     callParamCallbacks();
@@ -129,92 +132,198 @@ asynStatus amc100Controller::poll()
     return asynSuccess;
 }
 
-bool amc100Controller::readAmplitude(int axisNum)
+// bool amc100Controller::readAmplitude(int axisNum)
+bool amc100Controller::readFirmwareVer()
 {
-    bool result = false;
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.getControlAmplitude");
-    writer.String("params");
-    writer.StartArray();
-    writer.UInt64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.UInt64(idReq);
-    idReq++;
-    writer.EndObject();
-    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
-        recvBuffer, 256);
-    if(!result) {
-        // print error
-        return false;
-    }
-    rapidjson::Document doc;
-    result = doc.ParseInsitu(buffer).HasParseError();
-     if(!result) {
-        // print error
-        return false;
-    }
-    const Value& result = doc["result"];
-    if (!result.IsArray() || result.Size() != 2) {
-        // print error
-        return false;
-    }
-    int status = result[0].GetInt();
-    // TODO: check status
-    int amplitude = result[1].GetInt();
-    setIntegerParam(indexAmplitude, amplitude);
-    return result;
-}
+    // {"jsonrpc": "2.0", "method": "com.attocube.amc.control.setControlAmplitude", "params": [axis_n, amplitude], "id": 8}
+    // {"jsonrpc":"2.0","result":[0], "id":8}
 
-bool amc100Controller::readFrequency(int axisNum)
-{
     bool result = false;
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.getControlFrequency");
-    writer.String("params");
-    writer.StartArray();
-    writer.UInt64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.UInt64(idReq);
+
+    // const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.amc.control.getControlAmplitude\", \"params\": [axisNum], \"id\": idReq} ";
+
+    const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.getFirmwareVersion\", \"params\": [], \"id\": 0} ";
+
+    rapidjson::Document document;
+    result = document.Parse(json).HasParseError();
+    if (!result) {
+        // print error
+        return false;
+    }
     idReq++;
-    writer.EndObject();
-    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
-        recvBuffer, 256);
-    if(!result) {
-        // print error
+
+    char recvBuffer[256];
+    // char recvBuffer[] = " {\"jsonrpc\":\"2.0\", \"result\": [0, 0], \"id\":8.1} ";
+
+    result = sendReceive(json, sizeof(json), recvBuffer, 256);
+    if (!result) {
+        // error
         return false;
     }
-    rapidjson::Document doc;
-    result = doc.ParseInsitu(buffer).HasParseError();
-     if(!result) {
-        // print error
+    
+    rapidjson::Document recvDocument;
+    result = recvDocument.Parse(recvBuffer).HasParseError();
+    if (!result) {
+        // error
         return false;
     }
-    const Value& result = doc["result"];
-    if (!result.IsArray() || result.Size() != 2) {
-        // print error
+    // TODO: check ID matches
+    // const rapidjson::Value& resultArray = recvDocument["result"];
+    // if (!resultArray.IsArray() || resultArray.Size() != 2) {
+    const rapidjson::Value& response = recvDocument["result"];
+    if (response.IsInt()) {
+        // error
         return false;
     }
-    int status = result[0].GetInt();
+
+    // int errorNum = resultArray[0].GetInt();
+    // errorNumberToString(errorNum);
+    // TODO: Only when errorNum != 0
+
     // TODO: check status
-    int frequency = result[1].GetInt();
-    setIntegerParam(indexFrequency, frequency);
+    // int amplitude = resultArray[1].GetInt();
+    // setIntegerParam(indexAmplitude, amplitude);
+    int firmware = response.GetInt();
+    setIntegerParam(indexFirmware, firmware);
+    
     return result;
 
 }
+
+bool amc100Controller::errorNumberToString(int errorNum) {
+
+    bool result = false;
+    const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.errorNumberToString\", \"params\": [language, errorNum], \"id\": 4} ";
+
+    rapidjson::Document document;
+    result = document.Parse(json).HasParseError();
+    if (!result) {
+        // print error
+        return false;
+    }
+
+    char recvBuffer[256];
+    // char recvBuffer[] = " {\"jsonrpc\": \"2.0\", \"result\": \"errorString\", \"id\": 4} " ;
+
+    result = sendReceive(json, sizeof(json), recvBuffer, 256);
+    if (!result) {
+        // error
+        return false;
+    }
+    
+    rapidjson::Document recvDocument;
+    result = recvDocument.Parse(recvBuffer).HasParseError();
+    if (!result) {
+        // error
+        return false;
+    }
+    // TODO: check ID matches
+    const rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsString()) {
+        // error
+        return false;
+    }
+
+    int error = response.GetString();
+    setStringParam(indexError, error);
+    
+    return result;
+}
+
+// bool amc100Controller::readAmplitude(int axisNum)
+// {
+//     bool result = false;
+//     rapidjson::StringBuffer string_buffer;
+//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+//     unsigned char recvBuffer[256];
+//     writer.StartObject();
+//     writer.String("jsonrpc");
+//     writer.String("2.0");
+//     writer.String("method");
+//     writer.String("com.attocube.amc.control.getControlAmplitude");
+//     writer.String("params");
+//     writer.StartArray();
+//     writer.Uint64(axisNum);
+//     writer.EndArray();
+//     writer.String("id");
+//     writer.Uint64(idReq);
+//     idReq++;
+//     writer.EndObject();
+
+//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
+//         recvBuffer, 256);
+//     if(!result) {
+//         // print error
+//         return false;
+//     }
+
+//     rapidjson::Document doc;
+//     char buffer[sizeof(string_buffer)];
+//     // memcpy(buffer, string_buffer, sizeof(string_buffer));
+//     result = doc.ParseInsitu(buffer).HasParseError();
+//      if(!result) {
+//         // print error
+//         return false;
+//     }
+
+//     assert(doc.HasMember("result"));
+//     const rapidjson::Value& jsonresult = doc["result"];
+//     assert(jsonresult.IsArray());
+//     if (!jsonresult.IsArray() || jsonresult.Size() != 2) {
+//         // print error
+//         return false;
+//     }
+
+//     int status = jsonresult[0].GetInt();
+//     // TODO: check status
+//     int amplitude = jsonresult[1].GetInt();
+//     setIntegerParam(indexAmplitude, amplitude);
+//     return result;
+// }
+
+// bool amc100Controller::readFrequency(int axisNum)
+// {
+//     bool result = false;
+//     rapidjson::StringBuffer string_buffer;
+//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+//     char recvBuffer[256];
+//     writer.StartObject();
+//     writer.String("jsonrpc");
+//     writer.String("2.0");
+//     writer.String("method");
+//     writer.String("com.attocube.amc.control.getControlFrequency");
+//     writer.String("params");
+//     writer.StartArray();
+//     writer.UInt64(axisNum);
+//     writer.EndArray();
+//     writer.String("id");
+//     writer.UInt64(idReq);
+//     idReq++;
+//     writer.EndObject();
+//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
+//         recvBuffer, 256);
+//     if(!result) {
+//         // print error
+//         return false;
+//     }
+//     rapidjson::Document doc;
+//     result = doc.ParseInsitu(buffer).HasParseError();
+//      if(!result) {
+//         // print error
+//         return false;
+//     }
+//     const rapidjson::Value& result = doc["result"];
+//     if (!result.IsArray() || result.Size() != 2) {
+//         // print error
+//         return false;
+//     }
+//     int status = result[0].GetInt();
+//     // TODO: check status
+//     int frequency = result[1].GetInt();
+//     setIntegerParam(indexFrequency, frequency);
+//     return result;
+
+// }
 
 // void amc100Controller::ErrorNumToString(int errorNum)
 // {
@@ -315,8 +424,8 @@ void amc100Controller::IntToString(const unsigned char* encoded, char* string)
  * \param[out] rx the receive buffer - allocated by the caller
  * \param[in] rxSize the size of the recieve buffer
  */
-bool amc100Controller::sendReceive(const unsigned char* tx, size_t txSize,
-		unsigned char* rx, size_t rxSize)
+bool amc100Controller::sendReceive(const char* tx, size_t txSize,
+		char* rx, size_t rxSize)
 {
     int eomReason;
     size_t bytesOut;
@@ -343,86 +452,86 @@ bool amc100Controller::firstTimeInit()
 	return true;
 }
 
-/** first Time initializatin for future possible requirements
- * \param[out] returns true if status is OK
- */
-bool amc100Controller::readBoxStatus()
-{
-	unsigned char txBuffer[TXBUFFERSIZE];
-	unsigned char rxBuffer[RXBUFFERSIZE];
-    bool result = false;
+// /** first Time initializatin for future possible requirements
+//  * \param[out] returns true if status is OK
+//  */
+// bool amc100Controller::readBoxStatus()
+// {
+// 	unsigned char txBuffer[TXBUFFERSIZE];
+// 	unsigned char rxBuffer[RXBUFFERSIZE];
+//     bool result = false;
 
-    txBuffer[0] = cmdReadBoxStatus;
-    result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 1);
-    if(result)
-    {
-    	setIntegerParam(indexStatus, (unsigned int)rxBuffer[0]);
-    }
-    else
-    {
-    	setIntegerParam(indexStatus, 0);
-    	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-    	        "cmController: no connection to controller %d\n",controllerNum);
-    }
+//     txBuffer[0] = cmdReadBoxStatus;
+//     result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 1);
+//     if(result)
+//     {
+//     	setIntegerParam(indexStatus, (unsigned int)rxBuffer[0]);
+//     }
+//     else
+//     {
+//     	setIntegerParam(indexStatus, 0);
+//     	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+//     	        "cmController: no connection to controller %d\n",controllerNum);
+//     }
 
-    return result;
-};
+//     return result;
+// };
 
-/** reads the firware version into appropriate PVs
- * \param[out] returns true id successful
- */
-bool amc100Controller::readBoxFirmware()
-{
-	unsigned char txBuffer[TXBUFFERSIZE];
-	unsigned char rxBuffer[RXBUFFERSIZE];
-    bool result = false;
+// /** reads the firware version into appropriate PVs
+//  * \param[out] returns true id successful
+//  */
+// bool amc100Controller::readBoxFirmware()
+// {
+// 	unsigned char txBuffer[TXBUFFERSIZE];
+// 	unsigned char rxBuffer[RXBUFFERSIZE];
+//     bool result = false;
 
-    txBuffer[0] = cmdReadBoxFirmware;
-    result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 7);
-    if(result)
-    {
-        setIntegerParam(indexVersionHigh, 0);
-        setIntegerParam(indexSystemId, rxBuffer[0]);
-        setIntegerParam(indexVersionLow, rxBuffer[1]);
-    }
+//     txBuffer[0] = cmdReadBoxFirmware;
+//     result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 7);
+//     if(result)
+//     {
+//         setIntegerParam(indexVersionHigh, 0);
+//         setIntegerParam(indexSystemId, rxBuffer[0]);
+//         setIntegerParam(indexVersionLow, rxBuffer[1]);
+//     }
 
-	return result;
-}
+// 	return result;
+// }
 
-/** Transmits a command to the controller
- * \param[in] axis the axis number to send the command to
- * \param[in] command the command string to send
- * \param[in] parms pointer to encoded parameter buffer
- * \param[in] pLen the length of parms buffer
- * \param[out] response buffer for encoded response - allocated by caller
- * \param[in] rLen length of response buffer
- */
-bool amc100Controller::command(unsigned char axis, unsigned char command,
-		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen)
-{
-	unsigned char txBuffer[TXBUFFERSIZE];
-    bool result = false;
+// /** Transmits a command to the controller
+//  * \param[in] axis the axis number to send the command to
+//  * \param[in] command the command string to send
+//  * \param[in] parms pointer to encoded parameter buffer
+//  * \param[in] pLen the length of parms buffer
+//  * \param[out] response buffer for encoded response - allocated by caller
+//  * \param[in] rLen length of response buffer
+//  */
+// bool amc100Controller::command(unsigned char axis, unsigned char command,
+// 		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen)
+// {
+// 	unsigned char txBuffer[TXBUFFERSIZE];
+//     bool result = false;
 
-    txBuffer[0] = axis;
-    txBuffer[1] = command;
-    for(int i = 0; i< pLen; i++) txBuffer[2+i] = parms[i];
+//     txBuffer[0] = axis;
+//     txBuffer[1] = command;
+//     for(int i = 0; i< pLen; i++) txBuffer[2+i] = parms[i];
 
-    // add one to rLen for the leading ACK
-    result = sendReceive(txBuffer, pLen+2, response, rLen+1);
+//     // add one to rLen for the leading ACK
+//     result = sendReceive(txBuffer, pLen+2, response, rLen+1);
 
-    // check for the ACK
-    if(response[0] != 0x06)
-    {
-        asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-                "Error on axis %02x, command %02x, response %02x\n",axis, command, response[0]);
-    }
+//     // check for the ACK
+//     if(response[0] != 0x06)
+//     {
+//         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
+//                 "Error on axis %02x, command %02x, response %02x\n",axis, command, response[0]);
+//     }
 
-    // remove the ACK
-    for(int i = 0; i< rLen; i++)
-    	response[i]=response[i+1];
+//     // remove the ACK
+//     for(int i = 0; i< rLen; i++)
+//     	response[i]=response[i+1];
 
-    return result;
-}
+//     return result;
+// }
 
 
 
