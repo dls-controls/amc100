@@ -3,12 +3,15 @@
  *
  */
 
+#ifndef AMC_100_AXIS_H_
+#define AMC_100_AXIS_H_
+
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
 class amc100Controller;
 
 // global constants
-const char amc100AxesNumbers[4] = {0, 1, 2};
+const char amc100AxesNumbers[] = {0, 1, 2};
 
 class amc100Axis : public asynMotorAxis
 {
@@ -40,3 +43,5 @@ private:
     int curPosition;
     bool initialized;
 };
+
+#endif /* AMC_100_AXIS_H_ */

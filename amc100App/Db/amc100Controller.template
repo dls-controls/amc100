@@ -40,7 +40,7 @@ record(longin, "$(P)$(R):SYSTEMID")
 
 record(bi, "$(P)$(R):CONNECTED")
 {
-    field(SCAN, "I/O Intr")
+    field(SCAN, "1 second")
     field(DTYP, "asynInt32")
     field(VAL,  "0")
     field(INP,  "@asyn($(PORT),0,$(TIMEOUT))CONNECTED")

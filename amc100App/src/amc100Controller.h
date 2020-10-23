@@ -3,6 +3,9 @@
  *
  */
 
+#ifndef AMC_100_CONTROLLER_H_
+#define AMC_100_CONTROLLER_H_
+
 #include <string.h>
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
@@ -78,3 +81,5 @@ private:
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);
 };
+
+#endif /* INCLUDE_AMC_100_CONTROLLER_H_ */
