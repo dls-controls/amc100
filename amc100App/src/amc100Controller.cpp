@@ -16,8 +16,6 @@
 #include "amc100Controller.h"
 #include "asynOctetSyncIO.h"
 #include "asynCommonSyncIO.h"
-// #ifdef NDEBUG
-// #include <assert.h>
 
 
 /*******************************************************************************
@@ -43,7 +41,7 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
             /*asynFlags=*/ASYN_MULTIDEVICE | ASYN_CANBLOCK , /*autoConnect=*/1,
             /*priority=*/0, /*stackSize=*/0)
     , controllerNum(controllerNum)
-    , connectionPollRequired(0)
+    , connectionPollRequired(1)
 	, initialized(false)
 {
     // Create our parameters
@@ -53,10 +51,10 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     createParam(indexConnectedString, asynParamInt32, &indexConnected);
     createParam(indexSystemIdString, asynParamInt32, &indexSystemId);
     createParam(indexActiveHoldString, asynParamInt32, &indexActiveHold);
-    createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
-    createParam(indexFirmwareString, asynParamInt32, &indexFirmware);
     createParam(indexErrorString, asynParamInt32, &indexError);
-    // createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
+    createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
+    createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
+    createParam(indexFirmwareString, asynParamInt32, &indexFirmware);
 
     // Initialise our parameters
     setIntegerParam(indexVersionHigh, 0);
@@ -65,10 +63,10 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexConnected, 0);
     setIntegerParam(indexSystemId, 0);
     setIntegerParam(indexActiveHold, 0);
+    setIntegerParam(indexError, 0);
     setIntegerParam(indexAmplitude, 0);
+    setIntegerParam(indexFrequency, 0);
     setIntegerParam(indexFirmware, 0);
-    setStringParam(indexError, "");
-    // setIntegerParam(indexFrequency, 0);
 
     // Connect to the serial port
     asynStatus result = pasynOctetSyncIO->connect(serialPortName, serialPortAddress,
@@ -132,15 +130,9 @@ asynStatus amc100Controller::poll()
     return asynSuccess;
 }
 
-// bool amc100Controller::readAmplitude(int axisNum)
 bool amc100Controller::readFirmwareVer()
 {
-    // {"jsonrpc": "2.0", "method": "com.attocube.amc.control.setControlAmplitude", "params": [axis_n, amplitude], "id": 8}
-    // {"jsonrpc":"2.0","result":[0], "id":8}
-
     bool result = false;
-
-    // const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.amc.control.getControlAmplitude\", \"params\": [axisNum], \"id\": idReq} ";
 
     const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.getFirmwareVersion\", \"params\": [], \"id\": 0} ";
 
@@ -153,7 +145,6 @@ bool amc100Controller::readFirmwareVer()
     idReq++;
 
     char recvBuffer[256];
-    // char recvBuffer[] = " {\"jsonrpc\":\"2.0\", \"result\": [0, 0], \"id\":8.1} ";
 
     result = sendReceive(json, sizeof(json), recvBuffer, 256);
     if (!result) {
@@ -167,22 +158,17 @@ bool amc100Controller::readFirmwareVer()
         // error
         return false;
     }
+
     // TODO: check ID matches
-    // const rapidjson::Value& resultArray = recvDocument["result"];
-    // if (!resultArray.IsArray() || resultArray.Size() != 2) {
     const rapidjson::Value& response = recvDocument["result"];
     if (response.IsInt()) {
         // error
         return false;
     }
 
+    // TODO: check status and convert to string only when errorNum != 0
     // int errorNum = resultArray[0].GetInt();
     // errorNumberToString(errorNum);
-    // TODO: Only when errorNum != 0
-
-    // TODO: check status
-    // int amplitude = resultArray[1].GetInt();
-    // setIntegerParam(indexAmplitude, amplitude);
     int firmware = response.GetInt();
     setIntegerParam(indexFirmware, firmware);
     
@@ -190,45 +176,45 @@ bool amc100Controller::readFirmwareVer()
 
 }
 
-bool amc100Controller::errorNumberToString(int errorNum) {
+// bool amc100Controller::errorNumberToString(int errorNum) {
 
-    bool result = false;
-    const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.errorNumberToString\", \"params\": [language, errorNum], \"id\": 4} ";
+//     bool result = false;
+//     const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.errorNumberToString\", \"params\": [language, errorNum], \"id\": 4} ";
 
-    rapidjson::Document document;
-    result = document.Parse(json).HasParseError();
-    if (!result) {
-        // print error
-        return false;
-    }
+//     rapidjson::Document document;
+//     result = document.Parse(json).HasParseError();
+//     if (!result) {
+//         // print error
+//         return false;
+//     }
 
-    char recvBuffer[256];
-    // char recvBuffer[] = " {\"jsonrpc\": \"2.0\", \"result\": \"errorString\", \"id\": 4} " ;
+//     char recvBuffer[256];
+//     // char recvBuffer[] = " {\"jsonrpc\": \"2.0\", \"result\": \"errorString\", \"id\": 4} " ;
 
-    result = sendReceive(json, sizeof(json), recvBuffer, 256);
-    if (!result) {
-        // error
-        return false;
-    }
+//     result = sendReceive(json, sizeof(json), recvBuffer, 256);
+//     if (!result) {
+//         // error
+//         return false;
+//     }
     
-    rapidjson::Document recvDocument;
-    result = recvDocument.Parse(recvBuffer).HasParseError();
-    if (!result) {
-        // error
-        return false;
-    }
-    // TODO: check ID matches
-    const rapidjson::Value& response = recvDocument["result"];
-    if (!response.IsString()) {
-        // error
-        return false;
-    }
+//     rapidjson::Document recvDocument;
+//     result = recvDocument.Parse(recvBuffer).HasParseError();
+//     if (!result) {
+//         // error
+//         return false;
+//     }
+//     // TODO: check ID matches
+//     const rapidjson::Value& response = recvDocument["result"];
+//     if (!response.IsString()) {
+//         // error
+//         return false;
+//     }
 
-    int error = response.GetString();
-    setStringParam(indexError, error);
+//     int error = response.GetString();
+//     setStringParam(indexError, error);
     
-    return result;
-}
+//     return result;
+// }
 
 // bool amc100Controller::readAmplitude(int axisNum)
 // {

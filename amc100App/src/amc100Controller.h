@@ -3,9 +3,6 @@
  *
  */
 
-#ifndef MCSCONTROLLER_H_
-#define MCSCONTROLLER_H_
-
 #include <string.h>
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
@@ -24,8 +21,8 @@
 #define indexAmplitudeString "AMPLITUDE"
 #define indexErrorString "ERROR"
 #define indexFirmwareString "FIRMWARE"
-// #define indexFrequencyString "FREQUENCY"
-// #define indexVoltageString "VOLTAGE"
+#define indexFrequencyString "FREQUENCY"
+#define indexVoltageString "VOLTAGE"
 
 
 class amc100Controller : public asynMotorController {
@@ -54,7 +51,7 @@ protected:
     int indexAmplitude;
     int indexFirmware;
     int indexError;
-    // int indexFrequency;
+    int indexFrequency;
     int lastParam;
 
 private:
@@ -73,16 +70,11 @@ private:
 
     /* Communication Methods */
     bool firstTimeInit();
-    // bool readBoxFirmware();
-    // bool readBoxStatus();
     // bool readAmplitude(int axisNum);
     bool readFirmwareVer();
-    bool errorNumberToString(int errorNum);
+    // bool errorNumberToString(int errorNum);
     // bool readFrequency(int axisNum);
     bool sendReceive(const char* tx, size_t txSize, char* rx, size_t rxSize);
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);
 };
-
-
-#endif /* MCSCONTROLLER_H_ */
