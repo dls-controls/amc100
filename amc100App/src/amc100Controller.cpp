@@ -74,12 +74,14 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
 
     if( result != asynSuccess)
     {
+        printf("amc100Controller: Failed to connect to serial port %s\n", serialPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
                 "amc100Controller: Failed to connect to serial port %s\n",
                                 serialPortName);
     }
     else
     {
+        printf("amc100Controller: connected to serial port %s\n", serialPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
                 "amc100Controller: connected to serial port %s\n", serialPortName);
     }
@@ -113,7 +115,7 @@ asynStatus amc100Controller::poll()
         // result = readAmplitude(0);
         result = readFirmwareVer();
         // result = readFrequency(axisNum);
-        // result = readBoxStatus();
+
         if(!result)
         {
         	setIntegerParam(indexConnected, 0);
@@ -121,7 +123,6 @@ asynStatus amc100Controller::poll()
         else
         {
         	setIntegerParam(indexConnected, 1);
-        // 	readBoxFirmware();
         }
     }
 
@@ -134,43 +135,45 @@ bool amc100Controller::readFirmwareVer()
 {
     bool result = false;
 
-    const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.getFirmwareVersion\", \"params\": [], \"id\": 0} ";
-
-    rapidjson::Document document;
-    result = document.Parse(json).HasParseError();
-    if (!result) {
-        // print error
-        return false;
-    }
-    idReq++;
-
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
     char recvBuffer[256];
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String("com.attocube.system.getFirmwareVersion");
+    writer.String("params");
+    writer.StartArray();
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(idReq);
+    idReq++;
+    writer.EndObject();
 
-    result = sendReceive(json, sizeof(json), recvBuffer, 256);
+    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
     if (!result) {
-        // error
+        printf("sendReceive firmware json failed\n");
         return false;
     }
-    
+
     rapidjson::Document recvDocument;
-    result = recvDocument.Parse(recvBuffer).HasParseError();
-    if (!result) {
-        // error
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
         return false;
     }
 
-    // TODO: check ID matches
-    const rapidjson::Value& response = recvDocument["result"];
-    if (response.IsInt()) {
-        // error
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray()) {
+        printf("Didn't return expected type\n");
         return false;
     }
 
-    // TODO: check status and convert to string only when errorNum != 0
-    // int errorNum = resultArray[0].GetInt();
-    // errorNumberToString(errorNum);
-    int firmware = response.GetInt();
-    setIntegerParam(indexFirmware, firmware);
+    // TODO: Fix this type error
+    // printf(response[0].GetString());
+    // int firmware = response[0].GetInt();
+    // setIntegerParam(indexFirmware, firmware);
     
     return result;
 
@@ -181,27 +184,6 @@ bool amc100Controller::readFirmwareVer()
 //     bool result = false;
 //     const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.errorNumberToString\", \"params\": [language, errorNum], \"id\": 4} ";
 
-//     rapidjson::Document document;
-//     result = document.Parse(json).HasParseError();
-//     if (!result) {
-//         // print error
-//         return false;
-//     }
-
-//     char recvBuffer[256];
-//     // char recvBuffer[] = " {\"jsonrpc\": \"2.0\", \"result\": \"errorString\", \"id\": 4} " ;
-
-//     result = sendReceive(json, sizeof(json), recvBuffer, 256);
-//     if (!result) {
-//         // error
-//         return false;
-//     }
-    
-//     rapidjson::Document recvDocument;
-//     result = recvDocument.Parse(recvBuffer).HasParseError();
-//     if (!result) {
-//         // error
-//         return false;
 //     }
 //     // TODO: check ID matches
 //     const rapidjson::Value& response = recvDocument["result"];
@@ -216,143 +198,6 @@ bool amc100Controller::readFirmwareVer()
 //     return result;
 // }
 
-// bool amc100Controller::readAmplitude(int axisNum)
-// {
-//     bool result = false;
-//     rapidjson::StringBuffer string_buffer;
-//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-//     unsigned char recvBuffer[256];
-//     writer.StartObject();
-//     writer.String("jsonrpc");
-//     writer.String("2.0");
-//     writer.String("method");
-//     writer.String("com.attocube.amc.control.getControlAmplitude");
-//     writer.String("params");
-//     writer.StartArray();
-//     writer.Uint64(axisNum);
-//     writer.EndArray();
-//     writer.String("id");
-//     writer.Uint64(idReq);
-//     idReq++;
-//     writer.EndObject();
-
-//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
-//         recvBuffer, 256);
-//     if(!result) {
-//         // print error
-//         return false;
-//     }
-
-//     rapidjson::Document doc;
-//     char buffer[sizeof(string_buffer)];
-//     // memcpy(buffer, string_buffer, sizeof(string_buffer));
-//     result = doc.ParseInsitu(buffer).HasParseError();
-//      if(!result) {
-//         // print error
-//         return false;
-//     }
-
-//     assert(doc.HasMember("result"));
-//     const rapidjson::Value& jsonresult = doc["result"];
-//     assert(jsonresult.IsArray());
-//     if (!jsonresult.IsArray() || jsonresult.Size() != 2) {
-//         // print error
-//         return false;
-//     }
-
-//     int status = jsonresult[0].GetInt();
-//     // TODO: check status
-//     int amplitude = jsonresult[1].GetInt();
-//     setIntegerParam(indexAmplitude, amplitude);
-//     return result;
-// }
-
-// bool amc100Controller::readFrequency(int axisNum)
-// {
-//     bool result = false;
-//     rapidjson::StringBuffer string_buffer;
-//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-//     char recvBuffer[256];
-//     writer.StartObject();
-//     writer.String("jsonrpc");
-//     writer.String("2.0");
-//     writer.String("method");
-//     writer.String("com.attocube.amc.control.getControlFrequency");
-//     writer.String("params");
-//     writer.StartArray();
-//     writer.UInt64(axisNum);
-//     writer.EndArray();
-//     writer.String("id");
-//     writer.UInt64(idReq);
-//     idReq++;
-//     writer.EndObject();
-//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
-//         recvBuffer, 256);
-//     if(!result) {
-//         // print error
-//         return false;
-//     }
-//     rapidjson::Document doc;
-//     result = doc.ParseInsitu(buffer).HasParseError();
-//      if(!result) {
-//         // print error
-//         return false;
-//     }
-//     const rapidjson::Value& result = doc["result"];
-//     if (!result.IsArray() || result.Size() != 2) {
-//         // print error
-//         return false;
-//     }
-//     int status = result[0].GetInt();
-//     // TODO: check status
-//     int frequency = result[1].GetInt();
-//     setIntegerParam(indexFrequency, frequency);
-//     return result;
-
-// }
-
-// void amc100Controller::ErrorNumToString(int errorNum)
-// {
-//     bool result = false;
-//     rapidjson::StringBuffer string_buffer;
-//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-//     char recvBuffer[256];
-//     writer.StartObject();
-//     writer.String("jsonrpc");
-//     writer.String("2.0");
-//     writer.String("method");
-//     writer.String("com.attocube.system.errorNumberToString");
-//     writer.String("params");
-//     writer.StartArray();
-//     writer.UInt64("1"); // TODO: Double check the language int
-//     writer.UInt64(errorNum);
-//     writer.EndArray();
-//     writer.String("id");
-//     writer.UInt64(idReq);
-//     idReq++;
-//     writer.EndObject();
-//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(),    
-//         recvBuffer, 256);
-//     if(!result) {
-//         // print error
-//         return false;
-//     }
-//     rapidjson::Document doc;
-//     result = doc.ParseInsitu(buffer).HasParseError();
-//      if(!result) {
-//         // print error
-//         return false;
-//     }
-//     const Value& result = doc["result"];
-//     if (result.IsArray()) {
-//         // print error
-//         return false;
-//     }
-//     char* error = result.GetString();
-//     setIntegerParam(indexError, error);
-//     return result;
-// }
-
 
 /** Decode the controller's binary representation of a 32 bit int
  * \param[in] encoded a pointer to 4 bytes encoding the binary representation
@@ -360,21 +205,21 @@ bool amc100Controller::readFirmwareVer()
 */
 int  amc100Controller::DecodeInt32(unsigned char* encoded)
 {
-	int result = 0;
+	// int result = 0;
 
-	// The controller outputs a 28 bit signed integer in 32 bits
-	// LSB first, top nibble of MSB all zero
-	for(int i = 0; i<4; i++)
-	{
-		result |= (((int)encoded[i] & 0xff ) << 8*i);
-	}
+	// // The controller outputs a 28 bit signed integer in 32 bits
+	// // LSB first, top nibble of MSB all zero
+	// for(int i = 0; i<4; i++)
+	// {
+	// 	result |= (((int)encoded[i] & 0xff ) << 8*i);
+	// }
 
 
-	if(result & 0x08000000)
-	{
-		result |= 0xf0000000;
-	}
-	return result;
+	// if(result & 0x08000000)
+	// {
+	// 	result |= 0xf0000000;
+	// }
+	// return result;
 }
 
 /** Encode an int into the controller's binary representation
@@ -383,16 +228,16 @@ int  amc100Controller::DecodeInt32(unsigned char* encoded)
 */
 void amc100Controller::EncodeInt(int value, unsigned char* encoded)
 {
-	// The controller takes 28 bit signed addresses encoded into
-	// 4 bytes. Each byte has high bit zero and rest encoding  7 bits
-	// LSB first
+	// // The controller takes 28 bit signed addresses encoded into
+	// // 4 bytes. Each byte has high bit zero and rest encoding  7 bits
+	// // LSB first
 
-	for(int i = 0; i<4; i++)
-	{
-		// mask off 7 Least Sig bits
-		encoded[i] = value & 0x7f;
-		value = value >> 7;
-	}
+	// for(int i = 0; i<4; i++)
+	// {
+	// 	// mask off 7 Least Sig bits
+	// 	encoded[i] = value & 0x7f;
+	// 	value = value >> 7;
+	// }
 }
 
 /** Decode the controller's binary representation of a 32 bit int into a human readable form
@@ -401,7 +246,7 @@ void amc100Controller::EncodeInt(int value, unsigned char* encoded)
 */
 void amc100Controller::IntToString(const unsigned char* encoded, char* string)
 {
-	for(int i = 0; i<4; i++) sprintf(string+2*i, "%02x",encoded[i]);
+	// for(int i = 0; i<4; i++) sprintf(string+2*i, "%02x",encoded[i]);
 }
 
 /** Transmits binary data to the controller and waits for a return result.
@@ -425,8 +270,17 @@ bool amc100Controller::sendReceive(const char* tx, size_t txSize,
     // pasynOctetSyncIO->flush(serialPortUser);
     asynStatus result = pasynOctetSyncIO->writeRead(serialPortUser, (char*)tx, txSize,
             (char*)rx, rxSize, /*timeout=*/0.1, &bytesOut, &bytesIn, &eomReason);
+    
+    if(!result) {
+        printf("Error calling writeRead, tx=%s result=%d bytesin=%d eomReason=%d inString=%s\n", tx, result, &bytesIn, eomReason, rx);
+    }
+    else {
+        printf("writeRead successful\n");
+        printf(rx);
+    }
 
-    return result == asynSuccess;
+    // return result == asynSuccess;
+    return result;
 }
 
 /** first Time initializatin for future possible requirements

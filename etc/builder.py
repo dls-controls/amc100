@@ -1,5 +1,5 @@
 from iocbuilder import Device, AutoSubstitution
-from iocbuilder.modules.asyn import Asyn, AsynPort
+from iocbuilder.modules.asyn import Asyn, AsynIP
 from iocbuilder.modules.motor import MotorLib
 from iocbuilder.arginfo import *
 
@@ -11,12 +11,12 @@ class amc100Controller(AutoSubstitution, Device):
     
     TemplateFile = 'amc100Controller.template'
 
-    def __init__(self, name, serial_port, P, R, timeout,
+    def __init__(self, name, port, P, R, timeout,
             controller_address = 1, asyn_address = 0, max_axes = 3,
             moving_poll = 1000, standing_poll = 1000):
         self.name = name
         self.controller_address = controller_address
-        self.serial_port = serial_port
+        self.port = port
         self.asyn_address = asyn_address
         self.max_axes = max_axes
         self.moving_poll = moving_poll
@@ -26,12 +26,12 @@ class amc100Controller(AutoSubstitution, Device):
 
     def Initialise(self):
         print 'amc100ControllerConfig("%(name)s", %(controller_address)d, ' \
-            '"%(serial_port)s", %(asyn_address)d, %(max_axes)d, ' \
+            '"%(port)s", %(asyn_address)d, %(max_axes)d, ' \
             '%(moving_poll)d, %(standing_poll)d)' % self.__dict__
 
     ArgInfo = makeArgInfo(__init__,
         name = Simple('Identifier for this motor instance', str),
-        serial_port = Ident('Serial port to connect to', AsynPort),
+        port = Ident('Serial port to connect to', AsynIP),
         P = Simple('PV names Prefix (for motor record)', str),
         R = Simple('PV Name R component (for motor record)', str),
         timeout = Simple('timeout for serial communications', float),
