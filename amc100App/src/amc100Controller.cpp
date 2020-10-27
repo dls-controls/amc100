@@ -54,7 +54,7 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     createParam(indexErrorString, asynParamInt32, &indexError);
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
     createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
-    createParam(indexFirmwareString, asynParamInt32, &indexFirmware);
+    createParam(indexFirmwareString, asynParamOctet, &indexFirmware);
 
     // Initialise our parameters
     setIntegerParam(indexVersionHigh, 0);
@@ -66,7 +66,7 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexError, 0);
     setIntegerParam(indexAmplitude, 0);
     setIntegerParam(indexFrequency, 0);
-    setIntegerParam(indexFirmware, 0);
+    setStringParam(indexFirmware, "");
 
     // Connect to the serial port
     asynStatus result = pasynOctetSyncIO->connect(serialPortName, serialPortAddress,
@@ -112,9 +112,7 @@ asynStatus amc100Controller::poll()
         	initialized = true;
         	firstTimeInit();
         }
-        // result = readAmplitude(0);
         result = readFirmwareVer();
-        // result = readFrequency(axisNum);
 
         if(!result)
         {
@@ -170,10 +168,8 @@ bool amc100Controller::readFirmwareVer()
         return false;
     }
 
-    // TODO: Fix this type error
-    // printf(response[0].GetString());
-    // int firmware = response[0].GetInt();
-    // setIntegerParam(indexFirmware, firmware);
+    const char* firmware = response[0].GetString();
+    setStringParam(indexFirmware, firmware);
     
     return result;
 
@@ -275,8 +271,8 @@ bool amc100Controller::sendReceive(const char* tx, size_t txSize,
         printf("Error calling writeRead, tx=%s result=%d bytesin=%d eomReason=%d inString=%s\n", tx, result, &bytesIn, eomReason, rx);
     }
     else {
-        printf("writeRead successful\n");
-        printf(rx);
+        // printf("writeRead successful\n");
+        // printf(rx);
     }
 
     // return result == asynSuccess;

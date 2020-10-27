@@ -48,10 +48,10 @@ record(bi, "$(P)$(R):CONNECTED")
     field(ONAM, "Connected")
 }
 
-record(longin, "$(P)$(R):FIRMWARE")
+record(stringin, "$(P)$(R):FIRMWARE")
 {
     field(SCAN, "I/O Intr")
-    field(DTYP, "asynInt32")
+    field(DTYP, "asynOctetRead")
     field(INP, "@asyn($(PORT), 0,$(TIMEOUT))FIRMWARE")
     field(PINI, "YES")
 }
