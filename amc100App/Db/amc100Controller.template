@@ -6,38 +6,7 @@
 #% macro, PORT,  Asyn port
 #% macro, TIMEOUT,  Timeout
 
-record(longin, "$(P)$(R):VERSIONHI")
-{
-    field(SCAN, "I/O Intr")
-    field(DTYP, "asynInt32")
-    field(VAL,  "0")
-    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))VERSION_HIGH")
-}
-
-record(longin, "$(P)$(R):VERSIONLO")
-{
-    field(SCAN, "I/O Intr")
-    field(DTYP, "asynInt32")
-    field(VAL,  "0")
-    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))VERSION_LOW")
-}
-
-record(longin, "$(P)$(R):STATUS")
-{
-    field(SCAN, "I/O Intr")
-    field(DTYP, "asynInt32")
-    field(VAL,  "0")
-    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))STATUS")
-}
-
-record(longin, "$(P)$(R):SYSTEMID")
-{
-    field(SCAN, "I/O Intr")
-    field(DTYP, "asynInt32")
-    field(VAL,  "0")
-    field(INP,  "@asyn($(PORT),0,$(TIMEOUT))SYSTEM_ID")
-}
-
+#%archiver 1 Monitor
 record(bi, "$(P)$(R):CONNECTED")
 {
     field(SCAN, "I/O Intr")
