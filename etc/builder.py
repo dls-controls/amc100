@@ -11,8 +11,8 @@ class amc100Controller(AutoSubstitution, Device):
     
     TemplateFile = 'amc100Controller.template'
 
-    def __init__(self, name, port, P, R, timeout,
-            controller_address = 1, asyn_address = 0, max_axes = 3,
+    def __init__(self, name, port, P, R, timeout, max_axes,
+            controller_address = 1, asyn_address = 0,
             moving_poll = 1000, standing_poll = 1000):
         self.name = name
         self.controller_address = controller_address
@@ -58,7 +58,7 @@ class MotorAxis(AutoSubstitution, Device):
             TIMEOUT = timeout)
 
     def Initialise(self):
-        print 'amc100AxisConfig("%(controller)s", %(axis)d)' % self.__dict__
+        print 'amc100AxisConfig(%(controller)s, %(axis)d)' % self.__dict__
 
     ArgInfo = makeArgInfo(__init__,
         controller = Ident('amc100 Piezo Controller', amc100Controller),
