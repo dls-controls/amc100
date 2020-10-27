@@ -7,41 +7,21 @@
 #% macro, AXIS,  Axis number
 #% macro, TIMEOUT,  Timeout
 
-record(bo, "$(P)$(R):ACTIVEHOLD")
+#%archiver 1 Monitor
+record(longin, "$(P)$(R):AMPLITUDE_MV")
 {
-    field(SCAN, "Passive")
+    field(DESC, "Amplitude in mV")
     field(DTYP, "asynInt32")
-    field(VAL,  "0")
-    field(OUT,  "@asyn($(PORT),$(AXIS),$(TIMEOUT))ACTIVE_HOLD")
-    field(PINI, "1")
-    field(ZNAM, "Off")
-    field(ONAM, "On")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE")
+    field(FLNK, "$(P)$(R):AMPLITUDE_RBV")
 }
 
-record(longout, "$(P)$(R):AMPLITUDE")
+record(calcout, "$(P)$(R):AMPLITUDE_RBV")
 {
-    field(SCAN, "")
-    field(DTYP, "")
-    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))AMPLITUDE")
+    field(DESC, "Amplitude in V")
+    field(INPA, "$(P)$(R):AMPLITUDE_MV")
+    field(CALC, "A/1000")
+    field(EGU, "V")
 }
-
-record(longout, "$(P)$(R):FREQUENCY")
-{
-    field(SCAN, "")
-    field(DTYP, "")
-    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))FREQUENCY")
-}
-
-#record(longout, "$(P)$(R):VOLTAGE")
-#{
-#    field(SCAN, "")
-#    field(DTYP, "")
-#    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))VOLTAGE")
-#}
-
-#record(longout, "$(P)$(R):AXIS$(AXIS):POSITION")
-#{
-#    field(SCAN, "")
-#    field(DTYP, "")
-#    field(OUT, "@asyn($(PORT), $(AXIS),$(TIMEOUT))POSITION")
-#}
