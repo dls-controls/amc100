@@ -14,6 +14,7 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 #include "amc100Controller.h"
+#include "amc100Axis.h"
 #include "asynOctetSyncIO.h"
 #include "asynCommonSyncIO.h"
 
@@ -43,26 +44,17 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
     , controllerNum(controllerNum)
     , connectionPollRequired(1)
 	, initialized(false)
+    , numAxes(numAxes)
 {
     // Create our parameters
-    createParam(indexVersionHighString, asynParamInt32, &indexVersionHigh);
-    createParam(indexVersionLowString, asynParamInt32, &indexVersionLow);
-    createParam(indexStatusString, asynParamInt32, &indexStatus);
     createParam(indexConnectedString, asynParamInt32, &indexConnected);
-    createParam(indexSystemIdString, asynParamInt32, &indexSystemId);
-    createParam(indexActiveHoldString, asynParamInt32, &indexActiveHold);
     createParam(indexErrorString, asynParamInt32, &indexError);
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
     createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
     createParam(indexFirmwareString, asynParamOctet, &indexFirmware);
 
     // Initialise our parameters
-    setIntegerParam(indexVersionHigh, 0);
-    setIntegerParam(indexVersionLow, 0);
-    setIntegerParam(indexStatus, 0);
     setIntegerParam(indexConnected, 0);
-    setIntegerParam(indexSystemId, 0);
-    setIntegerParam(indexActiveHold, 0);
     setIntegerParam(indexError, 0);
     setIntegerParam(indexAmplitude, 0);
     setIntegerParam(indexFrequency, 0);
@@ -113,6 +105,10 @@ asynStatus amc100Controller::poll()
         	firstTimeInit();
         }
         result = readFirmwareVer();
+        for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
+            amc100Axis *axis = dynamic_cast<amc100Axis *>(this->getAxis(pollAxis));
+            axis->poll();
+        }
 
         if(!result)
         {
@@ -175,66 +171,52 @@ bool amc100Controller::readFirmwareVer()
 
 }
 
-// bool amc100Controller::errorNumberToString(int errorNum) {
-
+// bool amc100Controller::readAmplitude(int axisNum) {
 //     bool result = false;
-//     const char json[] = " {\"jsonrpc\": \"2.0\", \"method\": \"com.attocube.system.errorNumberToString\", \"params\": [language, errorNum], \"id\": 4} ";
 
-//     }
-//     // TODO: check ID matches
-//     const rapidjson::Value& response = recvDocument["result"];
-//     if (!response.IsString()) {
-//         // error
+//     rapidjson::StringBuffer string_buffer;
+//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+//     char recvBuffer[256];
+//     writer.StartObject();
+//     writer.String("jsonrpc");
+//     writer.String("2.0");
+//     writer.String("method");
+//     writer.String("com.attocube.amc.control.getControlAmplitude");
+//     writer.String("params");
+//     writer.StartArray();
+//     writer.Uint64(axisNum);
+//     writer.EndArray();
+//     writer.String("id");
+//     writer.Uint64(idReq);
+//     idReq++;
+//     writer.EndObject();
+
+//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+//     if (!result) {
+//         printf("sendReceive failed\n");
 //         return false;
 //     }
 
-//     int error = response.GetString();
-//     setStringParam(indexError, error);
+//     rapidjson::Document recvDocument;
+//     recvDocument.Parse(recvBuffer);
+//     if (recvDocument.Parse(recvBuffer).HasParseError()) {
+//         printf("Could not parse recvBuffer json\n");
+//         return false;
+//     }
+
+//     rapidjson::Value& response = recvDocument["result"];
+//     if (!response.IsArray() || response.Size() != 2) {
+//         printf("Didn't return expected type\n");
+//         return false;
+//     }
+
+//     int errorNum = response[0].GetInt();
+//     setIntegerParam(indexError, errorNum);
+//     int amplitude = response[1].GetDouble();
+//     setIntegerParam(indexAmplitude, amplitude);
     
 //     return result;
 // }
-
-
-/** Decode the controller's binary representation of a 32 bit int
- * \param[in] encoded a pointer to 4 bytes encoding the binary representation
- * \param[out] returns the decoded int
-*/
-int  amc100Controller::DecodeInt32(unsigned char* encoded)
-{
-	// int result = 0;
-
-	// // The controller outputs a 28 bit signed integer in 32 bits
-	// // LSB first, top nibble of MSB all zero
-	// for(int i = 0; i<4; i++)
-	// {
-	// 	result |= (((int)encoded[i] & 0xff ) << 8*i);
-	// }
-
-
-	// if(result & 0x08000000)
-	// {
-	// 	result |= 0xf0000000;
-	// }
-	// return result;
-}
-
-/** Encode an int into the controller's binary representation
- * \param[in] value the value to encode
- * \param[out] encoded a pointer to the 4 byte encoded int - Caller allocated memory
-*/
-void amc100Controller::EncodeInt(int value, unsigned char* encoded)
-{
-	// // The controller takes 28 bit signed addresses encoded into
-	// // 4 bytes. Each byte has high bit zero and rest encoding  7 bits
-	// // LSB first
-
-	// for(int i = 0; i<4; i++)
-	// {
-	// 	// mask off 7 Least Sig bits
-	// 	encoded[i] = value & 0x7f;
-	// 	value = value >> 7;
-	// }
-}
 
 /** Decode the controller's binary representation of a 32 bit int into a human readable form
  * \param[in] encoded a pointer to 4 bytes encoding the binary representation
@@ -275,7 +257,6 @@ bool amc100Controller::sendReceive(const char* tx, size_t txSize,
         // printf(rx);
     }
 
-    // return result == asynSuccess;
     return result;
 }
 
@@ -287,52 +268,6 @@ bool amc100Controller::firstTimeInit()
 	// No first time init required for the controller
 	return true;
 }
-
-// /** first Time initializatin for future possible requirements
-//  * \param[out] returns true if status is OK
-//  */
-// bool amc100Controller::readBoxStatus()
-// {
-// 	unsigned char txBuffer[TXBUFFERSIZE];
-// 	unsigned char rxBuffer[RXBUFFERSIZE];
-//     bool result = false;
-
-//     txBuffer[0] = cmdReadBoxStatus;
-//     result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 1);
-//     if(result)
-//     {
-//     	setIntegerParam(indexStatus, (unsigned int)rxBuffer[0]);
-//     }
-//     else
-//     {
-//     	setIntegerParam(indexStatus, 0);
-//     	asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-//     	        "cmController: no connection to controller %d\n",controllerNum);
-//     }
-
-//     return result;
-// };
-
-// /** reads the firware version into appropriate PVs
-//  * \param[out] returns true id successful
-//  */
-// bool amc100Controller::readBoxFirmware()
-// {
-// 	unsigned char txBuffer[TXBUFFERSIZE];
-// 	unsigned char rxBuffer[RXBUFFERSIZE];
-//     bool result = false;
-
-//     txBuffer[0] = cmdReadBoxFirmware;
-//     result = sendReceive(txBuffer, (size_t) 1, rxBuffer, (size_t) 7);
-//     if(result)
-//     {
-//         setIntegerParam(indexVersionHigh, 0);
-//         setIntegerParam(indexSystemId, rxBuffer[0]);
-//         setIntegerParam(indexVersionLow, rxBuffer[1]);
-//     }
-
-// 	return result;
-// }
 
 // /** Transmits a command to the controller
 //  * \param[in] axis the axis number to send the command to

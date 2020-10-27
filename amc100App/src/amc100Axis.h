@@ -30,7 +30,9 @@ public:
     virtual asynStatus home(double minVelocity,
             double maxVelocity, double acceleration, int forwards);
     virtual asynStatus stop(double acceleration);
-    virtual asynStatus poll(bool* moving);
+    virtual asynStatus poll();
+    bool readAmplitude();
+    bool readPosition();
 
 private:
     bool firstTimeInit();

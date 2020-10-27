@@ -4,9 +4,12 @@
  */
 
 #include <stdlib.h>
+#include <epicsThread.h>
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include "amc100Axis.h"
 #include "amc100Controller.h"
-#include <epicsThread.h>
 
 /** Constructor
  * \param[in] portName Asyn port name
@@ -23,6 +26,52 @@ amc100Axis::amc100Axis(amc100Controller* ctlr, int axisNum)
  */
 amc100Axis::~amc100Axis()
 {
+}
+
+bool amc100Axis::readAmplitude() {
+    bool result = false;
+
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    char recvBuffer[256];
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String("com.attocube.amc.control.getControlAmplitude");
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(axisNum);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(controller->idReq);
+    (controller->idReq)++;
+    writer.EndObject();
+
+    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+    if (!result) {
+        printf("sendReceive failed\n");
+        return false;
+    }
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    // int errorNum = response[0].GetInt();
+    // setIntegerParam(indexError, error);
+    int amplitude = response[1].GetInt();
+    setIntegerParam(controller->indexAmplitude, amplitude);
+    return result;
 }
 
 /** Move axis command
@@ -49,8 +98,54 @@ asynStatus amc100Axis::move(double position, int relative,
 	// // request the new Target position
 	// controller->EncodeInt((int)position,txBuffer);
 	// result = controller->command(amc100AxesNumbers[axisNum],cmdSetPos,txBuffer,4,rxBuffer,0);
+}
 
-    return asynSuccess;
+bool amc100Axis::readPosition() {
+    bool result = false;
+
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    char recvBuffer[256];
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String("com.attocube.amc.move.getPosition");
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(axisNum);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(controller->idReq);
+    (controller->idReq)++;
+    writer.EndObject();
+
+    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+    if (!result) {
+        printf("sendReceive failed\n");
+        return false;
+    }
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    // int errorNum = response[0].GetInt();
+    // setIntegerParam(indexError, error);
+    double position = response[1].GetDouble();
+    setDoubleParam(controller->motorEncoderPosition_, position * 1000);
+    setDoubleParam(controller->motorPosition_, position * 1000);
+
+    return result;
 }
 
 /** Jog axis command
@@ -92,8 +187,12 @@ asynStatus amc100Axis::stop(double acceleration)
  * entered with the lock already on.
  * \param[out] moving Set to TRUE if the axis is moving
  */
-asynStatus amc100Axis::poll(bool* moving)
+asynStatus amc100Axis::poll()
 {
+    bool result = false;
+    result = readAmplitude();
+    result |= readPosition();
+
     // unsigned char rxBuffer[controller->RXBUFFERSIZE];
 
     // if(!initialized)
@@ -132,7 +231,7 @@ asynStatus amc100Axis::poll(bool* moving)
     // setIntegerParam(controller->motorStatusFollowingError_, 0);
     // setIntegerParam(controller->motorStatusProblem_, 0);
 
-    // callParamCallbacks();
+    callParamCallbacks();
 
     return asynSuccess;
 }
