@@ -8,20 +8,21 @@
 #% macro, TIMEOUT,  Timeout
 
 #%archiver 1 Monitor
-record(longin, "$(P)$(R):AMPLITUDE_MV")
+record(longin, "$(P)$(R):AMP_RBV")
 {
-    field(DESC, "Amplitude in mV")
+    field(DESC, "Amplitude in V")
     field(DTYP, "asynInt32")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
     field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE")
-    field(FLNK, "$(P)$(R):AMPLITUDE_RBV")
 }
 
-record(calcout, "$(P)$(R):AMPLITUDE_RBV")
+#%archiver 1 Monitor
+record(longin, "$(P)$(R):FREQ_RBV")
 {
-    field(DESC, "Amplitude in V")
-    field(INPA, "$(P)$(R):AMPLITUDE_MV")
-    field(CALC, "A/1000")
-    field(EGU, "V")
+    field(DESC, "Frequency in Hz")
+    field(DTYP, "asynInt32")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))FREQUENCY")
 }

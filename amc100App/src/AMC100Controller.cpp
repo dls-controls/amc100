@@ -1,5 +1,5 @@
 /*
- * amc100Controller.cpp
+ * AMC100Controller.cpp
  * TODO: Capitalise class names to follow convention
  */
 
@@ -13,15 +13,15 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include "amc100Controller.h"
-#include "amc100Axis.h"
+#include "AMC100Controller.h"
+#include "AMC100Axis.h"
 #include "asynOctetSyncIO.h"
 #include "asynCommonSyncIO.h"
 
 
 /*******************************************************************************
 *
-*   The amc100 controller class
+*   The AMC100 controller class
 *
 *******************************************************************************/
 
@@ -34,7 +34,7 @@
  * \param[in] movingPollPeriod The period at which to poll position while moving
  * \param[in] idlePollPeriod The period at which to poll position while not moving
  */
-amc100Controller::amc100Controller(const char* portName, int controllerNum,
+AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
         const char* serialPortName, int serialPortAddress, int numAxes,
         double movingPollPeriod, double idlePollPeriod)
     : asynMotorController(portName, numAxes, /*numParams=*/&lastParam-&firstParam-1,
@@ -66,16 +66,16 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
 
     if( result != asynSuccess)
     {
-        printf("amc100Controller: Failed to connect to serial port %s\n", serialPortName);
+        printf("AMC100Controller: Failed to connect to serial port %s\n", serialPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-                "amc100Controller: Failed to connect to serial port %s\n",
+                "AMC100Controller: Failed to connect to serial port %s\n",
                                 serialPortName);
     }
     else
     {
-        printf("amc100Controller: connected to serial port %s\n", serialPortName);
+        printf("AMC100Controller: connected to serial port %s\n", serialPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-                "amc100Controller: connected to serial port %s\n", serialPortName);
+                "AMC100Controller: connected to serial port %s\n", serialPortName);
     }
 
     // Create the poller thread
@@ -84,13 +84,13 @@ amc100Controller::amc100Controller(const char* portName, int controllerNum,
 
 /** Destructor
  */
-amc100Controller::~amc100Controller()
+AMC100Controller::~AMC100Controller()
 {
 }
 
 /** Polls the controller
  */
-asynStatus amc100Controller::poll()
+asynStatus AMC100Controller::poll()
 {
 	bool result;
 
@@ -104,9 +104,9 @@ asynStatus amc100Controller::poll()
         	initialized = true;
         	firstTimeInit();
         }
-        result = readFirmwareVer();
+        result = getFirmwareVer();
         for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
-            amc100Axis *axis = dynamic_cast<amc100Axis *>(this->getAxis(pollAxis));
+            AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
             axis->poll();
         }
 
@@ -125,7 +125,7 @@ asynStatus amc100Controller::poll()
     return asynSuccess;
 }
 
-bool amc100Controller::readFirmwareVer()
+bool AMC100Controller::getFirmwareVer()
 {
     bool result = false;
 
@@ -171,58 +171,11 @@ bool amc100Controller::readFirmwareVer()
 
 }
 
-// bool amc100Controller::readAmplitude(int axisNum) {
-//     bool result = false;
-
-//     rapidjson::StringBuffer string_buffer;
-//     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-//     char recvBuffer[256];
-//     writer.StartObject();
-//     writer.String("jsonrpc");
-//     writer.String("2.0");
-//     writer.String("method");
-//     writer.String("com.attocube.amc.control.getControlAmplitude");
-//     writer.String("params");
-//     writer.StartArray();
-//     writer.Uint64(axisNum);
-//     writer.EndArray();
-//     writer.String("id");
-//     writer.Uint64(idReq);
-//     idReq++;
-//     writer.EndObject();
-
-//     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
-//     if (!result) {
-//         printf("sendReceive failed\n");
-//         return false;
-//     }
-
-//     rapidjson::Document recvDocument;
-//     recvDocument.Parse(recvBuffer);
-//     if (recvDocument.Parse(recvBuffer).HasParseError()) {
-//         printf("Could not parse recvBuffer json\n");
-//         return false;
-//     }
-
-//     rapidjson::Value& response = recvDocument["result"];
-//     if (!response.IsArray() || response.Size() != 2) {
-//         printf("Didn't return expected type\n");
-//         return false;
-//     }
-
-//     int errorNum = response[0].GetInt();
-//     setIntegerParam(indexError, errorNum);
-//     int amplitude = response[1].GetDouble();
-//     setIntegerParam(indexAmplitude, amplitude);
-    
-//     return result;
-// }
-
 /** Decode the controller's binary representation of a 32 bit int into a human readable form
  * \param[in] encoded a pointer to 4 bytes encoding the binary representation
  * \param[out] string a string representing the decoded int
 */
-void amc100Controller::IntToString(const unsigned char* encoded, char* string)
+void AMC100Controller::IntToString(const unsigned char* encoded, char* string)
 {
 	// for(int i = 0; i<4; i++) sprintf(string+2*i, "%02x",encoded[i]);
 }
@@ -233,7 +186,7 @@ void amc100Controller::IntToString(const unsigned char* encoded, char* string)
  * \param[out] rx the receive buffer - allocated by the caller
  * \param[in] rxSize the size of the recieve buffer
  */
-bool amc100Controller::sendReceive(const char* tx, size_t txSize,
+bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
 		char* rx, size_t rxSize)
 {
     int eomReason;
@@ -254,7 +207,7 @@ bool amc100Controller::sendReceive(const char* tx, size_t txSize,
     }
     else {
         // printf("writeRead successful\n");
-        // printf(rx);
+        printf(rx);
     }
 
     return result;
@@ -263,59 +216,22 @@ bool amc100Controller::sendReceive(const char* tx, size_t txSize,
 /** first Time initializatin for future possible requirements
  *
  */
-bool amc100Controller::firstTimeInit()
+bool AMC100Controller::firstTimeInit()
 {
 	// No first time init required for the controller
 	return true;
 }
 
-// /** Transmits a command to the controller
-//  * \param[in] axis the axis number to send the command to
-//  * \param[in] command the command string to send
-//  * \param[in] parms pointer to encoded parameter buffer
-//  * \param[in] pLen the length of parms buffer
-//  * \param[out] response buffer for encoded response - allocated by caller
-//  * \param[in] rLen length of response buffer
-//  */
-// bool amc100Controller::command(unsigned char axis, unsigned char command,
-// 		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen)
-// {
-// 	unsigned char txBuffer[TXBUFFERSIZE];
-//     bool result = false;
-
-//     txBuffer[0] = axis;
-//     txBuffer[1] = command;
-//     for(int i = 0; i< pLen; i++) txBuffer[2+i] = parms[i];
-
-//     // add one to rLen for the leading ACK
-//     result = sendReceive(txBuffer, pLen+2, response, rLen+1);
-
-//     // check for the ACK
-//     if(response[0] != 0x06)
-//     {
-//         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-//                 "Error on axis %02x, command %02x, response %02x\n",axis, command, response[0]);
-//     }
-
-//     // remove the ACK
-//     for(int i = 0; i< rLen; i++)
-//     	response[i]=response[i+1];
-
-//     return result;
-// }
-
-
-
 /** An integer parameter has been written
  * \param[in] pasynUser Handle of the user writing the paramter
  * \param[in] value The value written
  */
-asynStatus amc100Controller::writeInt32(asynUser *pasynUser, epicsInt32 value)
+asynStatus AMC100Controller::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
 	/*
     int function = pasynUser->reason;
 
-    amc100Axis* axis = dynamic_cast<amc100Axis*>(getAxis(pasynUser));
+    AMC100Axis* axis = dynamic_cast<AMC100Axis*>(getAxis(pasynUser));
     if(axis != NULL && function == indexCalibrateSensor)
     {
         // Calibrate the sensor of the specified axis
@@ -345,11 +261,11 @@ extern "C"
  * \param[in] movingPollPeriod The period at which to poll position while moving
  * \param[in] idlePollPeriod The period at which to poll position while not moving
  */
-asynStatus amc100ControllerConfig(const char *portName, int controllerNum,
+asynStatus AMC100ControllerConfig(const char *portName, int controllerNum,
         const char* serialPortName, int serialPortAddress,
         int numAxes, int movingPollPeriod, int idlePollPeriod)
 {
-    amc100Controller* ctlr = new amc100Controller(portName, controllerNum,
+    AMC100Controller* ctlr = new AMC100Controller(portName, controllerNum,
             serialPortName, serialPortAddress, numAxes,
             movingPollPeriod/1000.0, idlePollPeriod/1000.0);
     ctlr = NULL;   // To avoid compiler warning
@@ -360,17 +276,17 @@ asynStatus amc100ControllerConfig(const char *portName, int controllerNum,
  * param[in] ctlrName Asyn port name of the controller
  * param[in] axisNum The number of this axis
  */
-asynStatus amc100AxisConfig(const char* ctlrName, int axisNum)
+asynStatus AMC100AxisConfig(const char* ctlrName, int axisNum)
 {
     asynStatus result = asynSuccess;
-    amc100Controller* ctlr = (amc100Controller*)findAsynPortDriver(ctlrName);
+    AMC100Controller* ctlr = (AMC100Controller*)findAsynPortDriver(ctlrName);
     if(ctlr == NULL)
     {
         result = asynError;
     }
     else
     {
-        amc100Axis* axis = new amc100Axis(ctlr, axisNum);
+        AMC100Axis* axis = new AMC100Axis(ctlr, axisNum);
         axis = NULL; // To avoid compiler warning
     }
     return result;
@@ -384,50 +300,50 @@ asynStatus amc100AxisConfig(const char* ctlrName, int axisNum)
 *
 *******************************************************************************/
 
-static const iocshArg amc100ControllerConfigArg0 = {"port name", iocshArgString};
-static const iocshArg amc100ControllerConfigArg1 = {"controller number", iocshArgInt};
-static const iocshArg amc100ControllerConfigArg2 = {"serial port name", iocshArgString};
-static const iocshArg amc100ControllerConfigArg3 = {"serial port address", iocshArgInt};
-static const iocshArg amc100ControllerConfigArg4 = {"number of axes", iocshArgInt};
-static const iocshArg amc100ControllerConfigArg5 = {"moving poll period (ms)", iocshArgInt};
-static const iocshArg amc100ControllerConfigArg6 = {"idle poll period (ms)", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg0 = {"port name", iocshArgString};
+static const iocshArg AMC100ControllerConfigArg1 = {"controller number", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg2 = {"serial port name", iocshArgString};
+static const iocshArg AMC100ControllerConfigArg3 = {"serial port address", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg4 = {"number of axes", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg5 = {"moving poll period (ms)", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg6 = {"idle poll period (ms)", iocshArgInt};
 
-static const iocshArg *const amc100ControllerConfigArgs[] =
+static const iocshArg *const AMC100ControllerConfigArgs[] =
 {
-    &amc100ControllerConfigArg0, &amc100ControllerConfigArg1,
-    &amc100ControllerConfigArg2, &amc100ControllerConfigArg3,
-    &amc100ControllerConfigArg4, &amc100ControllerConfigArg5,
-    &amc100ControllerConfigArg6
+    &AMC100ControllerConfigArg0, &AMC100ControllerConfigArg1,
+    &AMC100ControllerConfigArg2, &AMC100ControllerConfigArg3,
+    &AMC100ControllerConfigArg4, &AMC100ControllerConfigArg5,
+    &AMC100ControllerConfigArg6
 };
-static const iocshFuncDef amc100ControllerConfigDef =
-    {"amc100ControllerConfig", 7, amc100ControllerConfigArgs};
+static const iocshFuncDef AMC100ControllerConfigDef =
+    {"AMC100ControllerConfig", 7, AMC100ControllerConfigArgs};
 
-static void amc100ControllerConfigCallFunc(const iocshArgBuf *args)
+static void AMC100ControllerConfigCallFunc(const iocshArgBuf *args)
 {
-    amc100ControllerConfig(args[0].sval, args[1].ival, args[2].sval, args[3].ival,
+    AMC100ControllerConfig(args[0].sval, args[1].ival, args[2].sval, args[3].ival,
             args[4].ival, args[5].ival, args[6].ival);
 }
 
-static const iocshArg amc100AxisConfigArg0 = {"controller port name", iocshArgString};
-static const iocshArg amc100AxisConfigArg1 = {"axis number", iocshArgInt};
+static const iocshArg AMC100AxisConfigArg0 = {"controller port name", iocshArgString};
+static const iocshArg AMC100AxisConfigArg1 = {"axis number", iocshArgInt};
 
-static const iocshArg *const amc100AxisConfigArgs[] =
+static const iocshArg *const AMC100AxisConfigArgs[] =
 {
-    &amc100AxisConfigArg0, &amc100AxisConfigArg1,
+    &AMC100AxisConfigArg0, &AMC100AxisConfigArg1,
 };
-static const iocshFuncDef amc100AxisConfigDef =
-    {"amc100AxisConfig", 2, amc100AxisConfigArgs};
+static const iocshFuncDef AMC100AxisConfigDef =
+    {"AMC100AxisConfig", 2, AMC100AxisConfigArgs};
 
-static void amc100AxisConfigCallFunc(const iocshArgBuf *args)
+static void AMC100AxisConfigCallFunc(const iocshArgBuf *args)
 {
-    amc100AxisConfig(args[0].sval, args[1].ival);
+    AMC100AxisConfig(args[0].sval, args[1].ival);
 }
 
-static void amc100Register(void)
+static void AMC100Register(void)
 {
-    iocshRegister(&amc100ControllerConfigDef, amc100ControllerConfigCallFunc);
-    iocshRegister(&amc100AxisConfigDef, amc100AxisConfigCallFunc);
+    iocshRegister(&AMC100ControllerConfigDef, AMC100ControllerConfigCallFunc);
+    iocshRegister(&AMC100AxisConfigDef, AMC100AxisConfigCallFunc);
 }
-epicsExportRegistrar(amc100Register);
+epicsExportRegistrar(AMC100Register);
 
 

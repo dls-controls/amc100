@@ -10,3 +10,4 @@ documentation
 iocs/example
 .project
 iocs/
+amc100App/src/rapidjson/*

@@ -1,5 +1,5 @@
 /*
- * amc100Axis.h
+ * AMC100Axis.h
  *
  */
 
@@ -8,19 +8,19 @@
 
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
-class amc100Controller;
+class AMC100Controller;
 
 // global constants
-const char amc100AxesNumbers[] = {0, 1, 2};
+const char AMC100AxesNumbers[] = {0, 1, 2};
 
-class amc100Axis : public asynMotorAxis
+class AMC100Axis : public asynMotorAxis
 {
 private:
 	// constants
 	enum {CONNECTIONPOLL=5};
 public:
-	amc100Axis(amc100Controller* ctlr, int axisNum);
-    virtual ~amc100Axis();
+	AMC100Axis(AMC100Controller* ctlr, int axisNum);
+    virtual ~AMC100Axis();
 
     // Overridden from asynMotorAxis
     virtual asynStatus move(double position, int relative,
@@ -31,8 +31,12 @@ public:
             double maxVelocity, double acceleration, int forwards);
     virtual asynStatus stop(double acceleration);
     virtual asynStatus poll();
-    bool readAmplitude();
-    bool readPosition();
+    bool getAmplitude();
+    bool getPosition();
+    bool getFrequency();
+    bool setFrequency(int frequency);
+    bool getControlContinuousFwd();
+    bool getControlContinuousBkwd();
 
 private:
     bool firstTimeInit();
@@ -40,7 +44,7 @@ private:
 private:
     /* Data */
     int connectionPollRequired;
-    amc100Controller* controller;
+    AMC100Controller* controller;
     int axisNum;
     int curPosition;
     bool initialized;

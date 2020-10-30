@@ -11,8 +11,8 @@ include $(TOP)/configure/CONFIG
 # In a Diamond Support Module, install
 # templates like this
 #
-DB += amc100Controller.template
-DB += amc100Axis.template
+DB += AMC100Controller.template
+DB += AMC100Axis.template
 
 include $(TOP)/configure/RULES
 #----------------------------------------

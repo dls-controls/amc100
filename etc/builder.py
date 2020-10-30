@@ -4,12 +4,12 @@ from iocbuilder.modules.motor import MotorLib
 from iocbuilder.arginfo import *
 
 
-class amc100Controller(AutoSubstitution, Device):
-    LibFileList = ['amc100']
-    DbdFileList = ['amc100']
+class AMC100Controller(AutoSubstitution, Device):
+    LibFileList = ['AMC100']
+    DbdFileList = ['AMC100']
     Dependencies = (Asyn, MotorLib) 
     
-    TemplateFile = 'amc100Controller.template'
+    TemplateFile = 'AMC100Controller.template'
 
     def __init__(self, name, port, P, R, timeout, max_axes,
             controller_address = 1, asyn_address = 0,
@@ -25,7 +25,7 @@ class amc100Controller(AutoSubstitution, Device):
         self.__super.__init__(P = P, R = R, PORT = name, TIMEOUT = timeout)
 
     def Initialise(self):
-        print 'amc100ControllerConfig("%(name)s", %(controller_address)d, ' \
+        print 'AMC100ControllerConfig("%(name)s", %(controller_address)d, ' \
             '"%(port)s", %(asyn_address)d, %(max_axes)d, ' \
             '%(moving_poll)d, %(standing_poll)d)' % self.__dict__
 
@@ -46,8 +46,8 @@ class amc100Controller(AutoSubstitution, Device):
 
 
 class MotorAxis(AutoSubstitution, Device):
-    Dependencies = (amc100Controller,)
-    TemplateFile = 'amc100Axis.template'
+    Dependencies = (AMC100Controller,)
+    TemplateFile = 'AMC100Axis.template'
 
     def __init__(self, controller, axis, P, R, timeout):
         self.controller = controller
@@ -58,10 +58,10 @@ class MotorAxis(AutoSubstitution, Device):
             TIMEOUT = timeout)
 
     def Initialise(self):
-        print 'amc100AxisConfig(%(controller)s, %(axis)d)' % self.__dict__
+        print 'AMC100AxisConfig(%(controller)s, %(axis)d)' % self.__dict__
 
     ArgInfo = makeArgInfo(__init__,
-        controller = Ident('amc100 Piezo Controller', amc100Controller),
+        controller = Ident('AMC100 Piezo Controller', AMC100Controller),
         axis = Simple('Axis number', int),
         P = Simple('PV names Prefix (for motor record)', str),
         R = Simple('PV Name R component (for motor record)', str),

@@ -12,36 +12,36 @@ USR_CXXFLAGS_Linux += -std=c++11
 # Build an IOC Application
 # ------------------------
 
-LIBRARY_IOC = amc100
+LIBRARY_IOC = AMC100
 
-# amc100.dbd will be installed into <top>/dbd
-DBD += amc100.dbd
+# AMC100.dbd will be installed into <top>/dbd
+DBD += AMC100.dbd
 
-# amc100.dbd will be created from these files
-amc100_DBD += base.dbd
-amc100_DBD += asyn.dbd
-amc100_DBD += motorSupport.dbd
-amc100_DBD += amc100.dbd
+# AMC100.dbd will be created from these files
+AMC100_DBD += base.dbd
+AMC100_DBD += asyn.dbd
+AMC100_DBD += motorSupport.dbd
+AMC100_DBD += AMC100.dbd
 
-# amc100_registerRecordDeviceDriver.cpp will be created
-# amc100.dbd
-amc100_SRCS += amc100_registerRecordDeviceDriver.cpp
+# AMC100_registerRecordDeviceDriver.cpp will be created
+# AMC100.dbd
+AMC100_SRCS += AMC100_registerRecordDeviceDriver.cpp
 
 # These two lines are needed for non-vxWorks builds, such as Linux
-amc100_SRCS_DEFAULT += amc100Main.cpp
-amc100_SRCS_vxWorks += -nil-
+AMC100_SRCS_DEFAULT += AMC100Main.cpp
+AMC100_SRCS_vxWorks += -nil-
 
 # Add locally compiled object code
-amc100_SRCS += amc100Controller.cpp
-amc100_SRCS += amc100Axis.cpp
+AMC100_SRCS += AMC100Controller.cpp
+AMC100_SRCS += AMC100Axis.cpp
 
 # This line says that this IOC Application depends on the
 # xxx Support Module
-amc100_LIBS += asyn
-amc100_LIBS += motor
+AMC100_LIBS += asyn
+AMC100_LIBS += motor
 
 # We need to link this IOC Application against the EPICS Base libraries
-amc100_LIBS += $(EPICS_BASE_IOC_LIBS)
+AMC100_LIBS += $(EPICS_BASE_IOC_LIBS)
 
 # ---------------------------------------------------
 

@@ -1,5 +1,5 @@
 /*
- * amc100Controller.h
+ * AMC100Controller.h
  *
  */
 
@@ -12,7 +12,7 @@
 
 #define size_t int // temporary fix for eclipse indexer problem
 
-#include "amc100Axis.h"
+#include "AMC100Axis.h"
 
 // Strings for extra parameters
 #define indexConnectedString "CONNECTED"
@@ -22,17 +22,17 @@
 #define indexFrequencyString "FREQUENCY"
 
 
-class amc100Controller : public asynMotorController {
-    friend class amc100Axis;
+class AMC100Controller : public asynMotorController {
+    friend class AMC100Axis;
 private:
     // Constants
 	enum {INTSTRINGLEN=5,RXBUFFERSIZE=10, TXBUFFERSIZE=10, RESBUFFERSIZE=30, CONNECTIONPOLL=10};
 public:
     unsigned int idReq;
-	amc100Controller(const char *portName, int controllerNum,
+	AMC100Controller(const char *portName, int controllerNum,
 	        const char* serialPortName, int serialPortAddress, int numAxes,
 	        double movingPollPeriod, double idlePollPeriod);
-    virtual ~amc100Controller();
+    virtual ~AMC100Controller();
 
     // Overridden from asynMotorController
     virtual asynStatus poll();
@@ -64,7 +64,7 @@ private:
 
     /* Communication Methods */
     bool firstTimeInit();
-    bool readFirmwareVer();
+    bool getFirmwareVer();
     // bool errorNumberToString(int errorNum);
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);
