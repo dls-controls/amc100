@@ -65,6 +65,7 @@ private:
     /* Communication Methods */
     bool firstTimeInit();
     bool getFirmwareVer();
+    bool setError(int errorNum);
     // bool errorNumberToString(int errorNum);
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);

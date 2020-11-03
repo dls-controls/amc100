@@ -35,8 +35,7 @@ public:
     bool getPosition();
     bool getFrequency();
     bool setFrequency(int frequency);
-    bool getControlContinuousFwd();
-    bool getControlContinuousBkwd();
+    bool getStatusMoving();
 
 private:
     bool firstTimeInit();

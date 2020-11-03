@@ -207,10 +207,58 @@ bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
     }
     else {
         // printf("writeRead successful\n");
+        printf("%s",tx);
         printf(rx);
     }
 
     return result;
+}
+
+bool AMC100Controller::setError(int errorNum) {
+    bool result = false;
+
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    char recvBuffer[256];
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String("com.attocube.system.errorNumberToString");
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(1);
+    writer.Uint64(errorNum);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(idReq);
+    idReq++;
+    writer.EndObject();
+
+    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+    if (!result) {
+        printf("sendReceive firmware json failed\n");
+        return false;
+    }
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray()) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    const char* error = response[0].GetString();
+    setStringParam(indexError, error);
+
+    return result;
+
 }
 
 /** first Time initializatin for future possible requirements
