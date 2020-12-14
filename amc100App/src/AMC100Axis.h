@@ -20,6 +20,7 @@ private:
 	enum {CONNECTIONPOLL=5};
 public:
 	AMC100Axis(AMC100Controller* ctlr, int axisNum);
+    void reconfigure();
     virtual ~AMC100Axis();
 
     // Overridden from asynMotorAxis
@@ -36,6 +37,7 @@ public:
     bool getFrequency();
     bool setFrequency(int frequency);
     bool getStatusMoving();
+    bool setControlMove(bool enable);
 
 private:
     bool firstTimeInit();

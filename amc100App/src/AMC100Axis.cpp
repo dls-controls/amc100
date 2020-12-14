@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <epicsThread.h>
+#include <cstring>
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
@@ -20,6 +21,15 @@ AMC100Axis::AMC100Axis(AMC100Controller* ctlr, int axisNum)
     , axisNum(axisNum)
 	, initialized(false)
 {
+    reconfigure();
+}
+
+// Enabled axes, without this we can't move!
+void AMC100Axis::reconfigure()
+{
+    if (!setControlMove(true)) {
+        printf("setControlMove failed");
+    }
 }
 
 /** Destructor
@@ -39,7 +49,6 @@ asynStatus AMC100Axis::poll()
     // result |= getFrequency();
     result |= getPosition();
     result |= getStatusMoving();
-
     // TODO: To check for errors
     // setIntegerParam(controller->motorStatusHighLimit_, 0);
     // setIntegerParam(controller->motorStatusLowLimit_, 0);
@@ -59,9 +68,9 @@ bool AMC100Axis::getStatusMoving() {
 
     bool result = false;
 
-        rapidjson::StringBuffer string_buffer;
+    rapidjson::StringBuffer string_buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
+    char recvBuffer[RECV_BUFFER_LEN];
     writer.StartObject();
     writer.String("jsonrpc");
     writer.String("2.0");
@@ -72,20 +81,20 @@ bool AMC100Axis::getStatusMoving() {
     writer.Uint64(axisNum);
     writer.EndArray();
     writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
+    writer.Uint64(COMMAND_GET_STATUS_REQID);
     writer.EndObject();
 
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
-    if (!result) {
+    result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    if (result != asynSuccess) {
         printf("sendReceive failed\n");
         return false;
     }
+    controller->receive(COMMAND_GET_STATUS_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
     if (recvDocument.Parse(recvBuffer).HasParseError()) {
-        printf("Could not parse recvBuffer json\n");
+        printf("Could not parse recvBuffer json: %s\n", recvBuffer);
         return false;
     }
 
@@ -102,6 +111,50 @@ bool AMC100Axis::getStatusMoving() {
     setIntegerParam(controller->motorStatusDone_, !moving_on_demand);
     setIntegerParam(controller->motorStatusMoving_, moving_on_demand);
     return result;
+
+}
+
+bool AMC100Axis::setControlMove(bool enable) {
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    char recvBuffer[256];
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String("com.attocube.amc.control.setControlMove");
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(axisNum);
+    writer.Bool(enable);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(COMMAND_SET_CONTROL_MOVE_REQID);
+    writer.EndObject();
+
+    asynStatus result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    if (result != asynSuccess) {
+        printf("sendReceive failed\n");
+        return false;
+    }
+
+    // rapidjson::Document recvDocument;
+    // recvDocument.Parse(recvBuffer);
+    // if (recvDocument.Parse(recvBuffer).HasParseError()) {
+    //     printf("Could not parse recvBuffer json: %s\n", recvBuffer);
+    //     return false;
+    // }
+
+    // rapidjson::Value& response = recvDocument["result"];
+    // if (!response.IsArray() || response.Size() != 2) {
+    //     printf("Didn't return expected type\n");
+    //     return false;
+    // }
+
+    // int errorNum = response[0].GetInt();
+    // setIntegerParam(indexError, error);
+    
+    return true;
 
 }
 
@@ -250,11 +303,9 @@ bool AMC100Axis::setFrequency(int frequency) {
 asynStatus AMC100Axis::move(double position, int relative,
         double minVelocity, double maxVelocity, double acceleration)
 {
-	bool result = false;
 
     rapidjson::StringBuffer string_buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
     writer.StartObject();
     writer.String("jsonrpc");
     writer.String("2.0");
@@ -266,36 +317,10 @@ asynStatus AMC100Axis::move(double position, int relative,
     writer.Double(position / 1000.0);
     writer.EndArray();
     writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
+    writer.Uint64(COMMAND_MOVE_REQID);
     writer.EndObject();
 
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
-    if (!result) {
-        printf("sendReceive failed\n");
-        return asynError;
-    }
-
-    rapidjson::Document recvDocument;
-    recvDocument.Parse(recvBuffer);
-    if (recvDocument.Parse(recvBuffer).HasParseError()) {
-        printf("Could not parse recvBuffer json\n");
-        return asynError;
-    }
-
-    rapidjson::Value& response = recvDocument["result"];
-    if (!response.IsArray() || response.Size() != 1) {
-        printf("Didn't return expected type\n");
-        return asynError;
-    }
-
-    int errorNum = response[0].GetInt();
-    if (errorNum) {
-        controller->setError(errorNum);
-    }
-
-    return result ? asynSuccess : asynError;
-
+    return controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
 }
 
 bool AMC100Axis::getPosition() {
@@ -314,20 +339,29 @@ bool AMC100Axis::getPosition() {
     writer.Uint64(axisNum);
     writer.EndArray();
     writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
+    writer.Uint64(COMMAND_GET_POSITION_REQID);
     writer.EndObject();
-
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
-    if (!result) {
+    recvBuffer[sizeof(recvBuffer) - 1] = 0;
+    result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    if (result != asynSuccess) {
         printf("sendReceive failed\n");
         return false;
     }
 
+    controller->receive(COMMAND_GET_POSITION_REQID, recvBuffer);
+
     rapidjson::Document recvDocument;
-    recvDocument.Parse(recvBuffer);
-    if (recvDocument.Parse(recvBuffer).HasParseError()) {
-        printf("Could not parse recvBuffer json\n");
+    
+    char *recvPtr = (char *) memchr(recvBuffer, '{', sizeof(recvBuffer));
+    // skip spaces and new line characters at the beginin
+    if (!recvPtr) {
+        printf("Unexpected reply: %s\n", recvBuffer);
+        return false;
+    }
+    rapidjson::ParseResult parseResult = recvDocument.Parse(recvPtr);
+    //recvDocument.Parse(recvBuffer);
+    if (!parseResult) {
+        printf("Could not parse recvBuffer json: %s\n", recvPtr);
         return false;
     }
 
