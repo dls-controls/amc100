@@ -19,6 +19,28 @@
 #include "asynCommonSyncIO.h"
 
 
+// HACK ALERT:
+// stolen fron asynOctetSyncIO.c
+// coldn't find a cleaner way to access
+// the underlying pasynOctet
+typedef struct ioPvt {
+   asynCommon   *pasynCommon;
+   void         *pcommonPvt;
+   asynOctet    *pasynOctet;
+   void         *octetPvt;
+   asynDrvUser  *pasynDrvUser;
+   void         *drvUserPvt;
+} ioPvt;
+
+
+extern "C" {
+    static void receivingTaskC(void *arg)
+    {
+        AMC100Controller *controller = (AMC100Controller *) arg;
+        controller->receivingTask();
+    }
+}
+
 /*******************************************************************************
 *
 *   The AMC100 controller class
@@ -78,14 +100,114 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
                 "AMC100Controller: connected to serial port %s\n", serialPortName);
     }
 
+    // Synchronization variables
+    for (int i=0; i < MAX_N_REPLIES; i++) {
+        replyEvents[i] = epicsEventCreate(epicsEventEmpty);
+        replyLocks[i] = epicsMutexCreate();
+    }
+    sendingLock = epicsMutexCreate();
+    
     // Create the poller thread
     startPoller(movingPollPeriod, idlePollPeriod, /*forcedFastPolls-*/10);
+    epicsThreadCreate("receivingThread", 
+                epicsThreadPriorityMedium, 
+                epicsThreadGetStackSize(epicsThreadStackMedium), 
+                (EPICSTHREADFUNC) receivingTaskC, 
+                this); 
 }
 
 /** Destructor
  */
 AMC100Controller::~AMC100Controller()
 {
+    for (int i=0; i < MAX_N_REPLIES; i++) {
+        epicsEventDestroy(replyEvents[i]);
+        epicsMutexDestroy(replyLocks[i]);
+    }
+}
+
+// this function doesn't block, in order to allow receiving and reading in parallel
+asynStatus AMC100Controller::lowlevelWrite(const char *buffer, size_t buffer_len)
+{
+    const char *functionName = "AMC100Controller::lowlevelWrite";
+    epicsMutexLock(sendingLock);
+    double timeout = 0.1;
+    size_t nBytes;
+    ioPvt      *pioPvt = (ioPvt *)serialPortUser->userPvt;
+    asynStatus status;
+    serialPortUser->timeout = timeout;
+    
+    status = pioPvt->pasynOctet->write(
+        pioPvt->octetPvt, serialPortUser, buffer, buffer_len , &nBytes);
+    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
+              "%s: buffer=%s status=%d nbytes=%d bufflen=%d\n",
+              functionName, buffer, status, nBytes, buffer_len);
+    
+err_out:
+    epicsMutexUnlock(sendingLock);
+    return status;
+}
+
+// this function doesn't block, in order to allow receiving and reading in parallel
+asynStatus AMC100Controller::lowlevelRead(char *buffer, size_t buffer_len)
+{
+    const char *functionName = "AMC100Controller::lowlevelRead";
+    double timeout = 300.0;
+    int eomReason;
+    asynStatus status;
+    size_t nBytes;
+    ioPvt      *pioPvt = (ioPvt *)serialPortUser->userPvt;
+
+    serialPortUser->timeout = timeout;
+
+    status = pioPvt->pasynOctet->read(
+        pioPvt->octetPvt,serialPortUser, buffer, buffer_len, &nBytes, &eomReason);
+    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
+              "%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
+              functionName, buffer, status,  eomReason, nBytes);
+    return status;
+}
+
+void AMC100Controller::receive(int reqId, char *buffer)
+{
+    // cond_wait ... 
+    const char *functionName = "AMC100Controller::receive";
+    assert(reqId >= 0 && reqId < MAX_N_REPLIES);
+    epicsEventWait(replyEvents[reqId]);
+    epicsMutexLock(replyLocks[reqId]);
+    strncpy(buffer, replyBuffers[reqId], RECV_BUFFER_LEN);
+    epicsMutexUnlock(replyLocks[reqId]);
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+              "%s: reqId=%d buffer=%s\n",
+              functionName, reqId, replyBuffers[reqId]);
+}
+
+
+// Continuously runs in background
+void AMC100Controller::receivingTask()
+{
+    const char *functionName = "receivingTask";
+    char buffer[RECV_BUFFER_LEN];
+    buffer[RECV_BUFFER_LEN - 1] = 0;
+    asynStatus status;
+    while (1) {
+        status = lowlevelRead(buffer, RECV_BUFFER_LEN - 1);
+        if (status == asynSuccess) {
+            // parse the data to get req id
+            int reqId;
+            if (!parseReqId(buffer, &reqId)) {
+                printf("%s: Error parsing req id\n", functionName);
+                continue;
+            }
+            //printf("reqId: %d\n", reqId);
+            assert(reqId >= 0 && reqId < MAX_N_REPLIES);
+            // To protect the buffers
+            epicsMutexLock(replyLocks[reqId]);
+            strncpy(replyBuffers[reqId], buffer, RECV_BUFFER_LEN);
+            epicsMutexUnlock(replyLocks[reqId]);
+            epicsEventSignal(replyEvents[reqId]);
+        }
+    }
 }
 
 /** Polls the controller
@@ -125,6 +247,24 @@ asynStatus AMC100Controller::poll()
     return asynSuccess;
 }
 
+bool AMC100Controller::parseReqId(char *buffer, int *reqId)
+{
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(buffer);
+    if (recvDocument.Parse(buffer).HasParseError()) {
+        printf("Could not parse buffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["id"];
+    if (!response.IsInt()) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+    *reqId = response.GetInt();
+    return true;
+}
+
 bool AMC100Controller::getFirmwareVer()
 {
     bool result = false;
@@ -141,15 +281,20 @@ bool AMC100Controller::getFirmwareVer()
     writer.StartArray();
     writer.EndArray();
     writer.String("id");
-    writer.Uint64(idReq);
+    writer.Uint64(COMMAND_GET_FIRMWARE_REQID);
     idReq++;
     writer.EndObject();
+    // To only send one at a time, otherwise could get mixed in with the next
+    this->lock();
 
-    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
-    if (!result) {
-        printf("sendReceive firmware json failed\n");
+    result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    this->unlock();
+    if (result != asynSuccess) {
+        printf("write firmware json failed\n");
         return false;
     }
+
+    this->receive(COMMAND_GET_FIRMWARE_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -202,7 +347,7 @@ bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
     asynStatus result = pasynOctetSyncIO->writeRead(serialPortUser, (char*)tx, txSize,
             (char*)rx, rxSize, /*timeout=*/0.1, &bytesOut, &bytesIn, &eomReason);
     
-    if(!result) {
+    if(result != asynSuccess) {
         printf("Error calling writeRead, tx=%s result=%d bytesin=%d eomReason=%d inString=%s\n", tx, result, &bytesIn, eomReason, rx);
     }
     else {
@@ -216,7 +361,6 @@ bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
 
 bool AMC100Controller::setError(int errorNum) {
     bool result = false;
-
     rapidjson::StringBuffer string_buffer;
     rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
     char recvBuffer[256];
@@ -237,7 +381,7 @@ bool AMC100Controller::setError(int errorNum) {
 
     result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
     if (!result) {
-        printf("sendReceive firmware json failed\n");
+        printf("sendReceive json failed\n");
         return false;
     }
 
@@ -290,6 +434,8 @@ asynStatus AMC100Controller::writeInt32(asynUser *pasynUser, epicsInt32 value)
     // no specific handling of parameter changes required for this class
     return asynMotorController::writeInt32(pasynUser, value);
 }
+
+
 
 /*******************************************************************************
 *

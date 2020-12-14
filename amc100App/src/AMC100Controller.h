@@ -7,10 +7,9 @@
 #define AMC_100_CONTROLLER_H_
 
 #include <string.h>
+#include <pthread.h>
 #include "asynMotorController.h"
 #include "asynMotorAxis.h"
-
-#define size_t int // temporary fix for eclipse indexer problem
 
 #include "AMC100Axis.h"
 
@@ -20,6 +19,16 @@
 #define indexErrorString "ERROR"
 #define indexFirmwareString "FIRMWARE"
 #define indexFrequencyString "FREQUENCY"
+
+
+#define RECV_BUFFER_LEN (256)
+#define COMMAND_MOVE_REQID (0)
+#define COMMAND_GET_FIRMWARE_REQID (1)
+#define COMMAND_GET_STATUS_REQID (2)
+#define COMMAND_GET_POSITION_REQID (3)
+#define COMMAND_SET_CONTROL_MOVE_REQID (4)
+
+#define MAX_N_REPLIES (8)
 
 
 class AMC100Controller : public asynMotorController {
@@ -38,6 +47,11 @@ public:
     virtual asynStatus poll();
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
     bool sendReceive(const char* tx, size_t txSize, char* rx, size_t rxSize);
+    void receive(int reqId, char *buffer);
+    void receivingTask();
+    bool parseReqId(char *buffer, int *reqId);
+    asynStatus lowlevelWrite(const char *buffer, size_t buffer_len);
+    asynStatus lowlevelRead(char *buffer, size_t buffer_len);
 
 protected:
     int firstParam;
@@ -69,6 +83,10 @@ private:
     // bool errorNumberToString(int errorNum);
     bool command(unsigned char axis, unsigned char command,
     		const unsigned char* parms, size_t pLen, unsigned char* response, size_t rLen);
+    char replyBuffers[MAX_N_REPLIES][256];
+    epicsEventId replyEvents[MAX_N_REPLIES];
+    epicsMutexId replyLocks[MAX_N_REPLIES];
+    epicsMutexId sendingLock;
 };
 
 #endif /* INCLUDE_AMC_100_CONTROLLER_H_ */
