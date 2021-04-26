@@ -38,9 +38,7 @@ public:
     bool setFrequency(int frequency);
     bool getStatusMoving();
     bool setControlMove(bool enable);
-
-private:
-    bool firstTimeInit();
+    bool setControlOutput(bool enable);
 
 private:
     /* Data */

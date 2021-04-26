@@ -21,7 +21,7 @@
 
 // HACK ALERT:
 // stolen fron asynOctetSyncIO.c
-// coldn't find a cleaner way to access
+// couldn't find a cleaner way to access
 // the underlying pasynOctet
 typedef struct ioPvt {
    asynCommon   *pasynCommon;
@@ -106,7 +106,8 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
         replyLocks[i] = epicsMutexCreate();
     }
     sendingLock = epicsMutexCreate();
-    
+    printLock = epicsMutexCreate();
+
     // Create the poller thread
     startPoller(movingPollPeriod, idlePollPeriod, /*forcedFastPolls-*/10);
     epicsThreadCreate("receivingThread", 
@@ -124,27 +125,134 @@ AMC100Controller::~AMC100Controller()
         epicsEventDestroy(replyEvents[i]);
         epicsMutexDestroy(replyLocks[i]);
     }
+    epicsMutexDestroy(sendingLock);
+    epicsMutexDestroy(printLock);
+}
+
+bool AMC100Controller::sendCommand(const char *command, int reqId)
+{
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String(command);
+    writer.String("params");
+    writer.StartArray();
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(reqId);
+    writer.EndObject();
+    asynStatus result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result == asynSuccess;
+}
+
+bool AMC100Controller::sendCommand(const char *command, int reqId, int val1, int val2)
+{
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String(command);
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(val1);
+    writer.Uint64(val2);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(reqId);
+    writer.EndObject();
+    asynStatus result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result == asynSuccess;
+}
+
+bool AMC100Controller::sendCommand(const char *command, int reqId, int val1)
+{
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String(command);
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(val1);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(reqId);
+    writer.EndObject();
+    asynStatus result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result == asynSuccess;
+}
+
+bool AMC100Controller::sendCommand(const char *command, int reqId, int val1, bool val2)
+{
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String(command);
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(val1);
+    writer.Bool(val2);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(reqId);
+    writer.EndObject();
+    asynStatus result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result == asynSuccess;
+}
+
+bool AMC100Controller::sendCommand(const char *command, int reqId, int val1,
+                                   double val2)
+{
+    rapidjson::StringBuffer string_buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
+    writer.StartObject();
+    writer.String("jsonrpc");
+    writer.String("2.0");
+    writer.String("method");
+    writer.String(command);
+    writer.String("params");
+    writer.StartArray();
+    writer.Uint64(val1);
+    writer.Double(val2);
+    writer.EndArray();
+    writer.String("id");
+    writer.Uint64(reqId);
+    writer.EndObject();
+    asynStatus result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result == asynSuccess;
 }
 
 // this function doesn't block, in order to allow receiving and reading in parallel
 asynStatus AMC100Controller::lowlevelWrite(const char *buffer, size_t buffer_len)
 {
     const char *functionName = "AMC100Controller::lowlevelWrite";
-    epicsMutexLock(sendingLock);
     double timeout = 0.1;
     size_t nBytes;
     ioPvt      *pioPvt = (ioPvt *)serialPortUser->userPvt;
     asynStatus status;
     serialPortUser->timeout = timeout;
     
+    epicsMutexLock(sendingLock);
     status = pioPvt->pasynOctet->write(
         pioPvt->octetPvt, serialPortUser, buffer, buffer_len , &nBytes);
-    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
-              "%s: buffer=%s status=%d nbytes=%d bufflen=%d\n",
-              functionName, buffer, status, nBytes, buffer_len);
+    epicsMutexUnlock(sendingLock);
+    epicsMutexLock(printLock);
+    //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
+    printf("%s: buffer=%s status=%d nbytes=%d bufflen=%d\n",
+           functionName, buffer, status, nBytes, buffer_len);
+    epicsMutexUnlock(printLock);
     
 err_out:
-    epicsMutexUnlock(sendingLock);
     return status;
 }
 
@@ -162,13 +270,15 @@ asynStatus AMC100Controller::lowlevelRead(char *buffer, size_t buffer_len)
 
     status = pioPvt->pasynOctet->read(
         pioPvt->octetPvt,serialPortUser, buffer, buffer_len, &nBytes, &eomReason);
-    asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
-              "%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
-              functionName, buffer, status,  eomReason, nBytes);
+    epicsMutexLock(printLock);
+    //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
+    printf("%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
+           functionName, buffer, status,  eomReason, nBytes);
+    epicsMutexUnlock(printLock);
     return status;
 }
 
-void AMC100Controller::receive(int reqId, char *buffer)
+bool AMC100Controller::receive(int reqId, char *buffer)
 {
     // cond_wait ... 
     const char *functionName = "AMC100Controller::receive";
@@ -177,9 +287,12 @@ void AMC100Controller::receive(int reqId, char *buffer)
     epicsMutexLock(replyLocks[reqId]);
     strncpy(buffer, replyBuffers[reqId], RECV_BUFFER_LEN);
     epicsMutexUnlock(replyLocks[reqId]);
-    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-              "%s: reqId=%d buffer=%s\n",
-              functionName, reqId, replyBuffers[reqId]);
+    epicsMutexLock(printLock);
+    //asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+    printf("%s: reqId=%d buffer=%s\n",
+           functionName, reqId, replyBuffers[reqId]);
+    epicsMutexUnlock(printLock);
+    return true;
 }
 
 
@@ -225,8 +338,8 @@ asynStatus AMC100Controller::poll()
         {
         	initialized = true;
         	firstTimeInit();
+            result = getFirmwareVer();
         }
-        result = getFirmwareVer();
         for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
             AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
             axis->poll();
@@ -268,28 +381,11 @@ bool AMC100Controller::parseReqId(char *buffer, int *reqId)
 bool AMC100Controller::getFirmwareVer()
 {
     bool result = false;
+    char recvBuffer[RECV_BUFFER_LEN];
+    result = sendCommand("com.attocube.system.getFirmwareVersion",                
+                         COMMAND_GET_FIRMWARE_REQID);
 
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.system.getFirmwareVersion");
-    writer.String("params");
-    writer.StartArray();
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(COMMAND_GET_FIRMWARE_REQID);
-    idReq++;
-    writer.EndObject();
-    // To only send one at a time, otherwise could get mixed in with the next
-    this->lock();
-
-    result = lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
-    this->unlock();
-    if (result != asynSuccess) {
+    if (!result) {
         printf("write firmware json failed\n");
         return false;
     }
@@ -361,29 +457,14 @@ bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
 
 bool AMC100Controller::setError(int errorNum) {
     bool result = false;
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.system.errorNumberToString");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(1);
-    writer.Uint64(errorNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(idReq);
-    idReq++;
-    writer.EndObject();
-
-    result = sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+    char recvBuffer[RECV_BUFFER_LEN];
+    result = sendCommand("com.attocube.system.errorNumberToString",
+                         COMMAND_ERROR_NUM_TO_STRING_REQID, 1, errorNum);
     if (!result) {
-        printf("sendReceive json failed\n");
+        printf("sendCommand json failed\n");
         return false;
     }
+    result = receive(COMMAND_ERROR_NUM_TO_STRING_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -410,7 +491,10 @@ bool AMC100Controller::setError(int errorNum) {
  */
 bool AMC100Controller::firstTimeInit()
 {
-	// No first time init required for the controller
+    for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
+        AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
+        axis->reconfigure();
+    }
 	return true;
 }
 

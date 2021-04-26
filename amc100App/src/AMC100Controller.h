@@ -27,8 +27,13 @@
 #define COMMAND_GET_STATUS_REQID (2)
 #define COMMAND_GET_POSITION_REQID (3)
 #define COMMAND_SET_CONTROL_MOVE_REQID (4)
+#define COMMAND_ERROR_NUM_TO_STRING_REQID (5)
+#define COMMAND_GET_AMPLITUDE_REQID (6)
+#define COMMAND_GET_FREQUENCY_REQID (7)
+#define COMMAND_SET_AMPLITUDE_REQID (8)
+#define COMMAND_SET_FREQUENCY_REQID (9)
 
-#define MAX_N_REPLIES (8)
+#define MAX_N_REPLIES (16)
 
 
 class AMC100Controller : public asynMotorController {
@@ -47,12 +52,16 @@ public:
     virtual asynStatus poll();
     virtual asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
     bool sendReceive(const char* tx, size_t txSize, char* rx, size_t rxSize);
-    void receive(int reqId, char *buffer);
+    bool receive(int reqId, char *buffer);
     void receivingTask();
     bool parseReqId(char *buffer, int *reqId);
     asynStatus lowlevelWrite(const char *buffer, size_t buffer_len);
     asynStatus lowlevelRead(char *buffer, size_t buffer_len);
-
+    bool sendCommand(const char *command, int reqId);
+    bool sendCommand(const char *command, int reqId, int val1);
+    bool sendCommand(const char *command, int reqId, int val1, int val2);
+    bool sendCommand(const char *command, int reqId, int val1, bool val2);
+    bool sendCommand(const char *command, int reqId, int val1, double val2);
 protected:
     int firstParam;
     int indexConnected;
@@ -87,6 +96,7 @@ private:
     epicsEventId replyEvents[MAX_N_REPLIES];
     epicsMutexId replyLocks[MAX_N_REPLIES];
     epicsMutexId sendingLock;
+    epicsMutexId printLock;
 };
 
 #endif /* INCLUDE_AMC_100_CONTROLLER_H_ */

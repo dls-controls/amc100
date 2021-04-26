@@ -21,12 +21,14 @@ AMC100Axis::AMC100Axis(AMC100Controller* ctlr, int axisNum)
     , axisNum(axisNum)
 	, initialized(false)
 {
-    reconfigure();
 }
 
 // Enabled axes, without this we can't move!
 void AMC100Axis::reconfigure()
 {
+    if (!setControlOutput(true)) {
+        printf("setControlOutput failed");
+    }
     if (!setControlMove(true)) {
         printf("setControlMove failed");
     }
@@ -115,74 +117,46 @@ bool AMC100Axis::getStatusMoving() {
 }
 
 bool AMC100Axis::setControlMove(bool enable) {
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.setControlMove");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.Bool(enable);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(COMMAND_SET_CONTROL_MOVE_REQID);
-    writer.EndObject();
+    bool result = controller->sendCommand("com.attocube.amc.control.setControlMove",
+                                          COMMAND_SET_CONTROL_MOVE_REQID, axisNum, enable);
 
-    asynStatus result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
-    if (result != asynSuccess) {
-        printf("sendReceive failed\n");
-        return false;
-    }
-
-    // rapidjson::Document recvDocument;
-    // recvDocument.Parse(recvBuffer);
-    // if (recvDocument.Parse(recvBuffer).HasParseError()) {
-    //     printf("Could not parse recvBuffer json: %s\n", recvBuffer);
-    //     return false;
-    // }
-
-    // rapidjson::Value& response = recvDocument["result"];
-    // if (!response.IsArray() || response.Size() != 2) {
-    //     printf("Didn't return expected type\n");
-    //     return false;
-    // }
-
-    // int errorNum = response[0].GetInt();
-    // setIntegerParam(indexError, error);
-    
-    return true;
-
-}
-
-bool AMC100Axis::getAmplitude() {
-    bool result = false;
-
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.getControlAmplitude");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
-    writer.EndObject();
-
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
     if (!result) {
         printf("sendReceive failed\n");
         return false;
     }
+
+    return true;
+
+}
+
+bool AMC100Axis::setControlOutput(bool enable)
+{
+    bool result = controller->sendCommand("com.attocube.amc.control.setControlOutput",
+                                          COMMAND_SET_CONTROL_MOVE_REQID, axisNum, enable);
+
+    if (!result) {
+        printf("sendReceive failed\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool AMC100Axis::getAmplitude() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getControlAmplitude", 
+        COMMAND_GET_AMPLITUDE_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_AMPLITUDE_REQID, recvBuffer);
+
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -205,30 +179,19 @@ bool AMC100Axis::getAmplitude() {
 }
 
 bool AMC100Axis::getFrequency() {
-    bool result = false;
-
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
     char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.getControlFrequency");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
-    writer.EndObject();
 
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getControlFrequency", 
+        COMMAND_GET_FREQUENCY_REQID,
+        axisNum);
+
     if (!result) {
-        printf("sendReceive failed\n");
+        printf("sendCommand failed\n");
         return false;
     }
+
+    result = controller->receive(COMMAND_GET_FREQUENCY_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -251,31 +214,19 @@ bool AMC100Axis::getFrequency() {
 }
 
 bool AMC100Axis::setFrequency(int frequency) {
-    bool result = false;
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlFrequency",
+        COMMAND_SET_FREQUENCY_REQID,
+        axisNum,
+        frequency * 1000);
 
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.control.setControlFrequency");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.Uint64(frequency * 1000);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(controller->idReq);
-    (controller->idReq)++;
-    writer.EndObject();
-
-    result = controller->sendReceive(string_buffer.GetString(), string_buffer.GetSize(), recvBuffer, sizeof(recvBuffer));
     if (!result) {
-        printf("sendReceive failed\n");
+        printf("sendCommand failed\n");
         return false;
     }
+
+    result = controller->receive(COMMAND_SET_FREQUENCY_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -303,48 +254,30 @@ bool AMC100Axis::setFrequency(int frequency) {
 asynStatus AMC100Axis::move(double position, int relative,
         double minVelocity, double maxVelocity, double acceleration)
 {
+    bool result = controller->sendCommand(
+        "com.attocube.amc.move.setControlTargetPosition",
+        COMMAND_MOVE_REQID,
+        axisNum,
+        (double) position / 1000.0);
 
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.move.setControlTargetPosition");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.Double(position / 1000.0);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(COMMAND_MOVE_REQID);
-    writer.EndObject();
+    if (!result) {
+        printf("sendCommand failed\n");
+        return asynError;
+    }
 
-    return controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
+    return result ? asynSuccess : asynError;
 }
 
-bool AMC100Axis::getPosition() {
-    bool result = false;
+bool AMC100Axis::getPosition()
+{
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+    "com.attocube.amc.move.getPosition",
+    COMMAND_GET_POSITION_REQID,
+    axisNum);
 
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[256];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.move.getPosition");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(COMMAND_GET_POSITION_REQID);
-    writer.EndObject();
-    recvBuffer[sizeof(recvBuffer) - 1] = 0;
-    result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
-    if (result != asynSuccess) {
-        printf("sendReceive failed\n");
+    if (!result) {
+        printf("sendCommand failed\n");
         return false;
     }
 
@@ -422,20 +355,3 @@ asynStatus AMC100Axis::stop(double acceleration)
     // return result ? asynSuccess : asynError;
     return asynSuccess;
 }
-
-
-/** First time initialization
- * sets up the following settings
- *  Clear all errors
- *  Encoder Limits - to widest range possible (required for motion to be possible before homing)
- *  read back encoder limits to verify they have been set
- *  unpark
- *  switch to closed loop target position mode
- */
-bool AMC100Axis::firstTimeInit()
-{
-	bool result = true;
-
-	return result;
-}
-

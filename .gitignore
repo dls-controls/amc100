@@ -11,3 +11,4 @@ iocs/example
 .project
 iocs/
 amc100App/src/rapidjson/*
+amc100App/src/amc_func.h
