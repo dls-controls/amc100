@@ -6,6 +6,8 @@
 #% macro, PORT,  Asyn port
 #% macro, TIMEOUT,  Timeout
 
+# % gui, $(name), edm, amc100.edl, P=$(P)$(R)
+
 #%archiver 1 Monitor
 record(bi, "$(P)$(R):CONNECTED")
 {

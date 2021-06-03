@@ -19,6 +19,9 @@
 #define indexErrorString "ERROR"
 #define indexFirmwareString "FIRMWARE"
 #define indexFrequencyString "FREQUENCY"
+#define indexAxisEnabledString "ST_ENABLED"
+#define indexAxisConnectedString "ST_CONNECTED"
+#define indexAxisRefPositionString "REF_POSITION"
 
 
 #define RECV_BUFFER_LEN (256)
@@ -26,14 +29,21 @@
 #define COMMAND_GET_FIRMWARE_REQID (1)
 #define COMMAND_GET_STATUS_REQID (2)
 #define COMMAND_GET_POSITION_REQID (3)
-#define COMMAND_SET_CONTROL_MOVE_REQID (4)
-#define COMMAND_ERROR_NUM_TO_STRING_REQID (5)
-#define COMMAND_GET_AMPLITUDE_REQID (6)
-#define COMMAND_GET_FREQUENCY_REQID (7)
-#define COMMAND_SET_AMPLITUDE_REQID (8)
-#define COMMAND_SET_FREQUENCY_REQID (9)
+#define COMMAND_GET_REF_POSITION_REQID (4)
+#define COMMAND_SET_CONTROL_MOVE_REQID (5)
+#define COMMAND_GET_CONTROL_OUTPUT_REQID (6)
+#define COMMAND_SET_CONTROL_OUTPUT_REQID (7)
+#define COMMAND_SET_CONTROL_AUTO_RESET_REQID (8)
+#define COMMAND_ERROR_NUM_TO_STRING_REQID (9)
+#define COMMAND_GET_AMPLITUDE_REQID (10)
+#define COMMAND_GET_FREQUENCY_REQID (11)
+#define COMMAND_SET_AMPLITUDE_REQID (12)
+#define COMMAND_SET_FREQUENCY_REQID (13)
+#define COMMAND_GET_AXIS_CXN_REQID (14)
+#define COMMAND_GET_STATUS_REF_REQID (15)
+#define COMMAND_STOP_MOVE_REQID (16)
 
-#define MAX_N_REPLIES (16)
+#define MAX_N_REPLIES (17)
 
 
 class AMC100Controller : public asynMotorController {
@@ -69,6 +79,10 @@ protected:
     int indexAmplitude;
     int indexError;
     int indexFrequency;
+    int indexAxisEnabled;
+    int indexAxisConnected;
+    int indexAxisRefPosition;
+    int indexStatusReference;
     int lastParam;
 
 private:

@@ -12,6 +12,8 @@
 #include "AMC100Axis.h"
 #include "AMC100Controller.h"
 
+#define SLOW_POLL_FREQ_CONST (8)
+
 /** Constructor
  * \param[in] portName Asyn port name
  */
@@ -20,6 +22,7 @@ AMC100Axis::AMC100Axis(AMC100Controller* ctlr, int axisNum)
     , controller(ctlr)
     , axisNum(axisNum)
 	, initialized(false)
+    , _pollCounter(0)
 {
 }
 
@@ -31,6 +34,9 @@ void AMC100Axis::reconfigure()
     }
     if (!setControlMove(true)) {
         printf("setControlMove failed");
+    }
+    if (!setControlAutoReset(true)) {
+        printf("setControlAutoReset failed");
     }
 }
 
@@ -51,6 +57,12 @@ asynStatus AMC100Axis::poll()
     // result |= getFrequency();
     result |= getPosition();
     result |= getStatusMoving();
+    if (_pollCounter % SLOW_POLL_FREQ_CONST == 0) {
+        result |= getReferencePosition();
+        result |= getStatusConnected();
+        result |= getStatusReference();
+        result |= getControlOutput();
+    }
     // TODO: To check for errors
     // setIntegerParam(controller->motorStatusHighLimit_, 0);
     // setIntegerParam(controller->motorStatusLowLimit_, 0);
@@ -62,36 +74,93 @@ asynStatus AMC100Axis::poll()
     // setIntegerParam(controller->motorStatusProblem_, 0);
 
     callParamCallbacks();
-
+    _pollCounter += 1;
     return asynSuccess;
 }
 
-bool AMC100Axis::getStatusMoving() {
+// Axis electrically connected to controller
+bool AMC100Axis::getStatusConnected() {
+    char recvBuffer[256];
 
-    bool result = false;
+    bool result = controller->sendCommand(
+        "com.attocube.amc.status.getStatusConnected",
+        COMMAND_GET_AXIS_CXN_REQID,
+        axisNum);
 
-    rapidjson::StringBuffer string_buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(string_buffer);
-    char recvBuffer[RECV_BUFFER_LEN];
-    writer.StartObject();
-    writer.String("jsonrpc");
-    writer.String("2.0");
-    writer.String("method");
-    writer.String("com.attocube.amc.status.getStatusMoving");
-    writer.String("params");
-    writer.StartArray();
-    writer.Uint64(axisNum);
-    writer.EndArray();
-    writer.String("id");
-    writer.Uint64(COMMAND_GET_STATUS_REQID);
-    writer.EndObject();
-
-    result = controller->lowlevelWrite(string_buffer.GetString(), string_buffer.GetSize());
-    if (result != asynSuccess) {
-        printf("sendReceive failed\n");
+    if (!result) {
+        printf("sendCommand failed\n");
         return false;
     }
-    controller->receive(COMMAND_GET_STATUS_REQID, recvBuffer);
+
+    result = controller->receive(COMMAND_GET_AXIS_CXN_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json: %s\n", recvBuffer);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    int axisConnected = response[1].GetBool();
+    setIntegerParam(controller->indexAxisConnected, axisConnected);
+    return result;
+}
+
+bool AMC100Axis::getStatusReference() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.status.getStatusReference",
+        COMMAND_GET_STATUS_REF_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_STATUS_REF_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json: %s\n", recvBuffer);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    int statusRef = response[1].GetBool();
+    setIntegerParam(controller->indexStatusReference, statusRef);
+    setIntegerParam(controller->motorStatusHomed_, statusRef);
+    return result;
+
+}
+
+bool AMC100Axis::getStatusMoving() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.status.getStatusMoving",
+        COMMAND_GET_STATUS_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_STATUS_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -117,8 +186,11 @@ bool AMC100Axis::getStatusMoving() {
 }
 
 bool AMC100Axis::setControlMove(bool enable) {
-    bool result = controller->sendCommand("com.attocube.amc.control.setControlMove",
-                                          COMMAND_SET_CONTROL_MOVE_REQID, axisNum, enable);
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlMove",
+        COMMAND_SET_CONTROL_MOVE_REQID,
+        axisNum,
+        enable);
 
     if (!result) {
         printf("sendReceive failed\n");
@@ -129,16 +201,68 @@ bool AMC100Axis::setControlMove(bool enable) {
 
 }
 
-bool AMC100Axis::setControlOutput(bool enable)
-{
-    bool result = controller->sendCommand("com.attocube.amc.control.setControlOutput",
-                                          COMMAND_SET_CONTROL_MOVE_REQID, axisNum, enable);
+bool AMC100Axis::setControlAutoReset(bool enable) {
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlAutoReset",
+        COMMAND_SET_CONTROL_AUTO_RESET_REQID,
+        axisNum,
+        enable);
 
     if (!result) {
         printf("sendReceive failed\n");
         return false;
     }
 
+    return true;
+
+}
+
+bool AMC100Axis::getControlOutput() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getControlOutput", 
+        COMMAND_GET_AMPLITUDE_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_AMPLITUDE_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    // int errorNum = response[0].GetInt();
+    // setIntegerParam(indexError, error);
+    int axisEnabledStatus = response[1].GetBool();
+    setIntegerParam(controller->indexAxisEnabled, axisEnabledStatus);
+    return result;
+}
+
+bool AMC100Axis::setControlOutput(bool enable) {
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlOutput",
+        COMMAND_SET_CONTROL_OUTPUT_REQID,
+        axisNum,
+        enable);
+
+    if (!result) {
+        printf("sendReceive failed\n");
+        return false;
+    }
     return true;
 }
 
@@ -157,7 +281,6 @@ bool AMC100Axis::getAmplitude() {
 
     result = controller->receive(COMMAND_GET_AMPLITUDE_REQID, recvBuffer);
 
-
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
     if (recvDocument.Parse(recvBuffer).HasParseError()) {
@@ -175,6 +298,37 @@ bool AMC100Axis::getAmplitude() {
     // setIntegerParam(indexError, error);
     int amplitude = response[1].GetInt();
     setIntegerParam(controller->indexAmplitude, amplitude / 1000);
+    return result;
+}
+
+bool AMC100Axis::setAmplitude(int amplitude) {
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlAmplitude",
+        COMMAND_SET_AMPLITUDE_REQID,
+        axisNum,
+        amplitude * 1000);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_SET_FREQUENCY_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 1) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
     return result;
 }
 
@@ -258,7 +412,7 @@ asynStatus AMC100Axis::move(double position, int relative,
         "com.attocube.amc.move.setControlTargetPosition",
         COMMAND_MOVE_REQID,
         axisNum,
-        (double) position / 1000.0);
+        (double) position);
 
     if (!result) {
         printf("sendCommand failed\n");
@@ -307,11 +461,56 @@ bool AMC100Axis::getPosition()
     // int errorNum = response[0].GetInt();
     // setIntegerParam(indexError, error);
     double position = response[1].GetDouble();
-    setDoubleParam(controller->motorEncoderPosition_, position * 1000);
-    setDoubleParam(controller->motorPosition_, position * 1000);
+    setDoubleParam(controller->motorEncoderPosition_, position);
+    setDoubleParam(controller->motorPosition_, position);
 
     return result;
 }
+
+bool AMC100Axis::getReferencePosition()
+{
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getReferencePosition",
+        COMMAND_GET_REF_POSITION_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    controller->receive(COMMAND_GET_REF_POSITION_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    
+    char *recvPtr = (char *) memchr(recvBuffer, '{', sizeof(recvBuffer));
+    // skip spaces and new line characters at the beginning
+    if (!recvPtr) {
+        printf("Unexpected reply: %s\n", recvBuffer);
+        return false;
+    }
+    rapidjson::ParseResult parseResult = recvDocument.Parse(recvPtr);
+    //recvDocument.Parse(recvBuffer);
+    if (!parseResult) {
+        printf("Could not parse recvBuffer json: %s\n", recvPtr);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    double refPosition = response[1].GetDouble();
+    setDoubleParam(controller->indexAxisRefPosition, refPosition);
+
+    return result;
+
+}
+
+
 
 /** Jog axis command
  * \param[in] minVelocity The minimum velocity during the move
@@ -341,17 +540,16 @@ asynStatus AMC100Axis::home(double minVelocity, double maxVelocity,
  */
 asynStatus AMC100Axis::stop(double acceleration)
 {
-	bool result = true;
+    bool result = controller->sendCommand(
+        "com.attocube.amc.move.setControlContinousFwd",
+        COMMAND_STOP_MOVE_REQID,
+        axisNum,
+        false);
 
-    // if ((!controller->command(pmAxesNumbers[axisNum],cmdStop,NULL,0,rxBuffer,0)) {
-        // result = false;
-    // }
-    //     
-    // else {
-    //     setIntegerParam(controller->motorStatusDone_, 1);
-    //     setIntegerParam(controller->motorStatusMoving_, 0);
-    // }
+    if (!result) {
+        printf("sendCommand failed\n");
+        return asynError;
+    }
 
-    // return result ? asynSuccess : asynError;
     return asynSuccess;
 }

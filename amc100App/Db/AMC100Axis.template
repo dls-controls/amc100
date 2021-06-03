@@ -12,6 +12,7 @@ record(longin, "$(P)$(R):AMP_RBV")
 {
     field(DESC, "Amplitude in V")
     field(DTYP, "asynInt32")
+    field(EGU, "V")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
     field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE")
@@ -22,7 +23,40 @@ record(longin, "$(P)$(R):FREQ_RBV")
 {
     field(DESC, "Frequency in Hz")
     field(DTYP, "asynInt32")
+    field(EGU, "Hz")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
     field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))FREQUENCY")
+}
+
+#%archiver 1 Monitor
+record(ai, "$(P)$(R):REF_POSITION")
+{
+    field(DESC, "Reference Position")
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))REF_POSITION")
+}
+
+#%archiver 1 Monitor
+record(bi, "$(P)$(R):ST_ENABLED")
+{
+    field(DESC, "Axis Enabled Status")
+    field(DTYP, "asynInt32")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))ST_ENABLED")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
+#%archiver 1 Monitor
+record(bi, "$(P)$(R):ST_CONNECT")
+{
+    field(DESC, "Axis Connection Status")
+    field(DTYP, "asynInt32")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))ST_CONNECTED")
+    field(ZNAM, "Disconnected")
+    field(ONAM, "Connected")
 }

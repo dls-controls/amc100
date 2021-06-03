@@ -33,11 +33,17 @@ public:
     virtual asynStatus stop(double acceleration);
     virtual asynStatus poll();
     bool getAmplitude();
+    bool setAmplitude(int amplitude);
     bool getPosition();
+    bool getReferencePosition();
     bool getFrequency();
     bool setFrequency(int frequency);
+    bool getStatusConnected();
+    bool getStatusReference();
     bool getStatusMoving();
+    bool setControlAutoReset(bool enable);
     bool setControlMove(bool enable);
+    bool getControlOutput();
     bool setControlOutput(bool enable);
 
 private:
@@ -47,6 +53,7 @@ private:
     int axisNum;
     int curPosition;
     bool initialized;
+    unsigned int _pollCounter;
 };
 
 #endif /* AMC_100_AXIS_H_ */

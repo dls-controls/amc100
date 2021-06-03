@@ -60,7 +60,7 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
         const char* serialPortName, int serialPortAddress, int numAxes,
         double movingPollPeriod, double idlePollPeriod)
     : asynMotorController(portName, numAxes, /*numParams=*/&lastParam-&firstParam-1,
-            /*interfaceMask=*/0, /*interruptMask=*/0,
+            /*interfaceMask=*/ asynFloat64Mask, /*interruptMask=*/ asynFloat64Mask,
             /*asynFlags=*/ASYN_MULTIDEVICE | ASYN_CANBLOCK , /*autoConnect=*/1,
             /*priority=*/0, /*stackSize=*/0)
     , controllerNum(controllerNum)
@@ -74,6 +74,9 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
     createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
     createParam(indexFirmwareString, asynParamOctet, &indexFirmware);
+    createParam(indexAxisEnabledString, asynParamInt32, &indexAxisEnabled);
+    createParam(indexAxisConnectedString, asynParamInt32, &indexAxisConnected);
+    createParam(indexAxisRefPositionString, asynParamFloat64, &indexAxisRefPosition);
 
     // Initialise our parameters
     setIntegerParam(indexConnected, 0);
@@ -81,6 +84,10 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexAmplitude, 0);
     setIntegerParam(indexFrequency, 0);
     setStringParam(indexFirmware, "");
+    setIntegerParam(indexAxisEnabled, 0);
+    setIntegerParam(indexAxisConnected, 0);
+    setDoubleParam(indexAxisRefPosition, 0.0);
+
 
     // Connect to the serial port
     asynStatus result = pasynOctetSyncIO->connect(serialPortName, serialPortAddress,
@@ -486,7 +493,7 @@ bool AMC100Controller::setError(int errorNum) {
 
 }
 
-/** first Time initializatin for future possible requirements
+/** first Time initialization for future possible requirements
  *
  */
 bool AMC100Controller::firstTimeInit()
