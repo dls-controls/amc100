@@ -22,6 +22,7 @@
 #define indexAxisEnabledString "ST_ENABLED"
 #define indexAxisConnectedString "ST_CONNECTED"
 #define indexAxisRefPositionString "REF_POSITION"
+#define indexStatusReferenceString "STAT_REF"
 
 
 #define RECV_BUFFER_LEN (256)

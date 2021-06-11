@@ -77,6 +77,7 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     createParam(indexAxisEnabledString, asynParamInt32, &indexAxisEnabled);
     createParam(indexAxisConnectedString, asynParamInt32, &indexAxisConnected);
     createParam(indexAxisRefPositionString, asynParamFloat64, &indexAxisRefPosition);
+    createParam(indexStatusReferenceString, asynParamInt32, &indexStatusReference);
 
     // Initialise our parameters
     setIntegerParam(indexConnected, 0);
@@ -87,6 +88,7 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexAxisEnabled, 0);
     setIntegerParam(indexAxisConnected, 0);
     setDoubleParam(indexAxisRefPosition, 0.0);
+    setIntegerParam(indexStatusReference, 0);
 
 
     // Connect to the serial port
@@ -255,8 +257,8 @@ asynStatus AMC100Controller::lowlevelWrite(const char *buffer, size_t buffer_len
     epicsMutexUnlock(sendingLock);
     epicsMutexLock(printLock);
     //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
-    printf("%s: buffer=%s status=%d nbytes=%d bufflen=%d\n",
-           functionName, buffer, status, nBytes, buffer_len);
+    // printf("%s: buffer=%s status=%d nbytes=%d bufflen=%d\n",
+    //        functionName, buffer, status, nBytes, buffer_len);
     epicsMutexUnlock(printLock);
     
 err_out:
@@ -279,8 +281,8 @@ asynStatus AMC100Controller::lowlevelRead(char *buffer, size_t buffer_len)
         pioPvt->octetPvt,serialPortUser, buffer, buffer_len, &nBytes, &eomReason);
     epicsMutexLock(printLock);
     //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
-    printf("%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
-           functionName, buffer, status,  eomReason, nBytes);
+    // printf("%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
+    //        functionName, buffer, status,  eomReason, nBytes);
     epicsMutexUnlock(printLock);
     return status;
 }
@@ -296,8 +298,8 @@ bool AMC100Controller::receive(int reqId, char *buffer)
     epicsMutexUnlock(replyLocks[reqId]);
     epicsMutexLock(printLock);
     //asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-    printf("%s: reqId=%d buffer=%s\n",
-           functionName, reqId, replyBuffers[reqId]);
+    // printf("%s: reqId=%d buffer=%s\n",
+    //        functionName, reqId, replyBuffers[reqId]);
     epicsMutexUnlock(printLock);
     return true;
 }
