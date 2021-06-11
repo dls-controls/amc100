@@ -53,8 +53,8 @@ AMC100Axis::~AMC100Axis()
 asynStatus AMC100Axis::poll()
 {
     bool result = false;
-    // result = getAmplitude();
-    // result |= getFrequency();
+    result |= getAmplitude();
+    result |= getFrequency();
     result |= getPosition();
     result |= getStatusMoving();
     if (_pollCounter % SLOW_POLL_FREQ_CONST == 0) {

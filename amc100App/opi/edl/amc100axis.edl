@@ -4,9 +4,9 @@ major 4
 minor 0
 release 1
 x 859
-y 421
+y 458
 w 590
-h 250
+h 235
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -276,9 +276,9 @@ minor 1
 release 1
 x 405
 y 60
-w 52
-h 21
-font "arial-medium-r-18.0"
+w 47
+h 18
+font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
@@ -294,16 +294,17 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 205
-y 60
-w 90
-h 21
-font "arial-medium-r-18.0"
+x 210
+y 55
+w 81
+h 36
+font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
 value {
   "Frequency"
+  "      Hz"
 }
 autoSize
 endObjectProperties
@@ -314,16 +315,17 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 110
-y 60
-w 84
-h 21
-font "arial-medium-r-18.0"
+x 115
+y 55
+w 75
+h 36
+font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
 value {
   "Amplitude"
+  "      V"
 }
 autoSize
 endObjectProperties
@@ -336,9 +338,9 @@ minor 1
 release 1
 x 35
 y 60
-w 35
-h 21
-font "arial-medium-r-18.0"
+w 32
+h 18
+font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
