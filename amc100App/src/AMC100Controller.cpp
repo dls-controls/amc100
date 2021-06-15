@@ -351,7 +351,9 @@ asynStatus AMC100Controller::poll()
         }
         for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
             AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
-            axis->poll();
+            // TODO: will it always return NULL for a non existent axis?
+            if (axis)
+	        axis->poll();
         }
 
         if(!result)
@@ -502,7 +504,9 @@ bool AMC100Controller::firstTimeInit()
 {
     for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
         AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
-        axis->reconfigure();
+        // TODO: will it always return NULL for a non existent axis?
+	if (axis)
+            axis->reconfigure();
     }
 	return true;
 }
