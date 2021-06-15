@@ -32,9 +32,6 @@ void AMC100Axis::reconfigure()
     if (!setControlOutput(true)) {
         printf("setControlOutput failed");
     }
-    if (!setControlMove(true)) {
-        printf("setControlMove failed");
-    }
     if (!setControlAutoReset(true)) {
         printf("setControlAutoReset failed");
     }
@@ -408,14 +405,15 @@ bool AMC100Axis::setFrequency(int frequency) {
 asynStatus AMC100Axis::move(double position, int relative,
         double minVelocity, double maxVelocity, double acceleration)
 {
-    bool result = controller->sendCommand(
+    bool result = setControlMove(true);
+    result &= controller->sendCommand(
         "com.attocube.amc.move.setControlTargetPosition",
         COMMAND_MOVE_REQID,
         axisNum,
         (double) position);
 
     if (!result) {
-        printf("sendCommand failed\n");
+        printf("Move failed\n");
         return asynError;
     }
 
@@ -463,6 +461,7 @@ bool AMC100Axis::getPosition()
     double position = response[1].GetDouble();
     setDoubleParam(controller->motorEncoderPosition_, position);
     setDoubleParam(controller->motorPosition_, position);
+    lastPosition = position;
 
     return result;
 }
@@ -540,16 +539,7 @@ asynStatus AMC100Axis::home(double minVelocity, double maxVelocity,
  */
 asynStatus AMC100Axis::stop(double acceleration)
 {
-    bool result = controller->sendCommand(
-        "com.attocube.amc.move.setControlContinousFwd",
-        COMMAND_STOP_MOVE_REQID,
-        axisNum,
-        false);
-
-    if (!result) {
-        printf("sendCommand failed\n");
+    if (!setControlMove(false))
         return asynError;
-    }
-
     return asynSuccess;
 }

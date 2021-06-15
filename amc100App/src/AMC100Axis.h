@@ -51,9 +51,9 @@ private:
     int connectionPollRequired;
     AMC100Controller* controller;
     int axisNum;
-    int curPosition;
     bool initialized;
     unsigned int _pollCounter;
+    double lastPosition;
 };
 
 #endif /* AMC_100_AXIS_H_ */
