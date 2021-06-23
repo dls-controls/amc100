@@ -43,8 +43,10 @@
 #define COMMAND_GET_AXIS_CXN_REQID (14)
 #define COMMAND_GET_STATUS_REF_REQID (15)
 #define COMMAND_STOP_MOVE_REQID (16)
+#define COMMAND_GET_STATUS_EOT_FWD_REQID (17)
+#define COMMAND_GET_STATUS_EOT_BKWD_REQID (18)
 
-#define MAX_N_REPLIES (17)
+#define MAX_N_REPLIES (20)
 
 
 class AMC100Controller : public asynMotorController {

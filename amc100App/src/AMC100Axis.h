@@ -41,6 +41,8 @@ public:
     bool getStatusConnected();
     bool getStatusReference();
     bool getStatusMoving();
+    bool getStatusEotFwd();
+    bool getStatusEotBkwd();
     bool setControlAutoReset(bool enable);
     bool setControlMove(bool enable);
     bool getControlOutput();

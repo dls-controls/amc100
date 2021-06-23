@@ -54,6 +54,8 @@ asynStatus AMC100Axis::poll()
     result |= getFrequency();
     result |= getPosition();
     result |= getStatusMoving();
+    result |= getStatusEotFwd();
+    result |= getStatusEotBkwd();
     if (_pollCounter % SLOW_POLL_FREQ_CONST == 0) {
         result |= getReferencePosition();
         result |= getStatusConnected();
@@ -61,8 +63,7 @@ asynStatus AMC100Axis::poll()
         result |= getControlOutput();
     }
     // TODO: To check for errors
-    // setIntegerParam(controller->motorStatusHighLimit_, 0);
-    // setIntegerParam(controller->motorStatusLowLimit_, 0);
+
     // setIntegerParam(controller->motorStatusHasEncoder_, 0);
     // setDoubleParam(controller->motorVelocity_, 0.0);
     // setIntegerParam(controller->motorStatusSlip_, 0);
@@ -509,7 +510,89 @@ bool AMC100Axis::getReferencePosition()
 
 }
 
+bool AMC100Axis::getStatusEotFwd()
+{
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.status.getStatusEotFwd",
+        COMMAND_GET_STATUS_EOT_FWD_REQID,
+        axisNum);
 
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    controller->receive(COMMAND_GET_STATUS_EOT_FWD_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    
+    char *recvPtr = (char *) memchr(recvBuffer, '{', sizeof(recvBuffer));
+    // skip spaces and new line characters at the beginning
+    if (!recvPtr) {
+        printf("Unexpected reply: %s\n", recvBuffer);
+        return false;
+    }
+    rapidjson::ParseResult parseResult = recvDocument.Parse(recvPtr);
+    //recvDocument.Parse(recvBuffer);
+    if (!parseResult) {
+        printf("Could not parse recvBuffer json: %s\n", recvPtr);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    bool fwd_limit_reached = response[1].GetBool();
+    setIntegerParam(controller->motorStatusHighLimit_, fwd_limit_reached);
+
+    return result;
+}
+
+bool AMC100Axis::getStatusEotBkwd()
+{
+        char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.status.getStatusEotBkwd",
+        COMMAND_GET_STATUS_EOT_BKWD_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    controller->receive(COMMAND_GET_STATUS_EOT_BKWD_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    
+    char *recvPtr = (char *) memchr(recvBuffer, '{', sizeof(recvBuffer));
+    // skip spaces and new line characters at the beginning
+    if (!recvPtr) {
+        printf("Unexpected reply: %s\n", recvBuffer);
+        return false;
+    }
+    rapidjson::ParseResult parseResult = recvDocument.Parse(recvPtr);
+    //recvDocument.Parse(recvBuffer);
+    if (!parseResult) {
+        printf("Could not parse recvBuffer json: %s\n", recvPtr);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    bool bkwd_limit_reached = response[1].GetBool();
+    setIntegerParam(controller->motorStatusLowLimit_, bkwd_limit_reached);
+
+    return result;
+}
 
 /** Jog axis command
  * \param[in] minVelocity The minimum velocity during the move
