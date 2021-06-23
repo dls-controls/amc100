@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 859
-y 458
-w 590
-h 235
+x 969
+y 550
+w 600
+h 225
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -25,54 +25,18 @@ snapToGrid
 gridSize 5
 endScreenProperties
 
-# (Rectangle)
-object activeRectangleClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 5
-y 5
-w 580
-h 30
-lineColor index 14
-fill
-fillColor index 51
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 155
-y 10
-w 214
-h 21
-font "arial-bold-r-18.0"
-fontAlign "center"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Attocube AMC100 Axes"
-}
-autoSize
-endObjectProperties
-
 # (Text Monitor)
 object activeXTextDspClass:noedit
 beginObjectProperties
 major 4
 minor 6
 release 0
-x 210
-y 175
+x 195
+y 165
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS2:FREQ_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -90,12 +54,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 210
-y 135
+x 195
+y 125
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS1:FREQ_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -113,12 +77,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 210
-y 95
+x 195
+y 85
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS0:FREQ_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -136,12 +100,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 115
-y 175
+x 105
+y 165
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS2:AMP_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -159,12 +123,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 115
-y 135
+x 105
+y 125
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS1:AMP_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -182,12 +146,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 115
-y 95
+x 105
+y 85
 w 80
-h 20
+h 18
 controlPv "$(P):AXIS0:AMP_RBV"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -205,12 +169,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 15
-y 175
+x 10
+y 165
 w 85
-h 21
+h 18
 controlPv "$(P):AXIS2.DESC"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -228,12 +192,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 15
-y 135
+x 10
+y 125
 w 85
-h 21
+h 18
 controlPv "$(P):AXIS1.DESC"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -251,12 +215,12 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 15
-y 95
+x 10
+y 85
 w 85
-h 21
+h 18
 controlPv "$(P):AXIS0.DESC"
-font "arial-medium-r-18.0"
+font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -274,8 +238,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 405
-y 60
+x 375
+y 50
 w 47
 h 18
 font "arial-medium-r-16.0"
@@ -294,8 +258,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 210
-y 55
+x 195
+y 45
 w 81
 h 36
 font "arial-medium-r-16.0"
@@ -315,8 +279,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 115
-y 55
+x 105
+y 45
 w 75
 h 36
 font "arial-medium-r-16.0"
@@ -336,8 +300,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 35
-y 60
+x 30
+y 50
 w 32
 h 18
 font "arial-medium-r-16.0"
@@ -356,10 +320,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 440
-y 95
-w 125
-h 25
+x 405
+y 85
+w 115
+h 20
 
 beginGroup
 
@@ -369,11 +333,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 95
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 85
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -391,11 +355,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 95
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 85
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -417,10 +381,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 315
-y 95
-w 125
-h 25
+x 285
+y 85
+w 110
+h 20
 
 beginGroup
 
@@ -430,11 +394,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 95
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 285
+y 85
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -452,11 +416,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 95
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 285
+y 85
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -478,10 +442,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 440
-y 135
-w 125
-h 25
+x 405
+y 125
+w 115
+h 20
 
 beginGroup
 
@@ -491,11 +455,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 135
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 125
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -513,11 +477,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 135
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 125
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -539,10 +503,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 315
-y 135
-w 125
-h 25
+x 285
+y 125
+w 115
+h 20
 
 beginGroup
 
@@ -552,11 +516,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 135
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 283
+y 125
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -574,11 +538,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 135
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 283
+y 125
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -600,10 +564,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 440
-y 175
-w 125
-h 25
+x 405
+y 165
+w 115
+h 20
 
 beginGroup
 
@@ -613,11 +577,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 175
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 165
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -635,11 +599,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 440
-y 175
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 405
+y 165
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -661,10 +625,10 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 315
-y 175
-w 125
-h 25
+x 285
+y 165
+w 115
+h 20
 
 beginGroup
 
@@ -674,11 +638,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 175
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 283
+y 165
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
@@ -696,11 +660,11 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 315
-y 175
-w 121
-h 25
-font "helvetica-medium-r-18.0"
+x 283
+y 165
+w 111
+h 20
+font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
@@ -714,5 +678,135 @@ endObjectProperties
 
 endGroup
 
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 5
+w 635
+h 30
+
+beginGroup
+
+# (Rectangle)
+object activeRectangleClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 5
+y 5
+w 590
+h 30
+lineColor index 14
+fill
+fillColor index 51
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 217
+y 10
+w 214
+h 21
+font "arial-bold-r-18.0"
+fontAlign "center"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Attocube AMC100 Axes"
+}
+autoSize
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Byte)
+object ByteClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 525
+y 85
+w 20
+h 20
+controlPv "$(P):AXIS0.MSTA"
+lineColor index 14
+onColor index 15
+offColor index 19
+lineWidth 2
+numBits 1
+shift 14
+endObjectProperties
+
+# (Byte)
+object ByteClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 525
+y 125
+w 20
+h 20
+controlPv "$(P):AXIS1.MSTA"
+lineColor index 14
+onColor index 15
+offColor index 19
+lineWidth 2
+numBits 1
+shift 14
+endObjectProperties
+
+# (Byte)
+object ByteClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 525
+y 165
+w 20
+h 20
+controlPv "$(P):AXIS2.MSTA"
+lineColor index 14
+onColor index 15
+offColor index 19
+lineWidth 2
+numBits 1
+shift 14
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 505
+y 50
+w 56
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Homed"
+}
+autoSize
 endObjectProperties
 
