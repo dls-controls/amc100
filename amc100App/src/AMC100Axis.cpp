@@ -184,35 +184,19 @@ bool AMC100Axis::getStatusMoving() {
 }
 
 bool AMC100Axis::setControlMove(bool enable) {
-    bool result = controller->sendCommand(
+    return controller->sendCommand(
         "com.attocube.amc.control.setControlMove",
         COMMAND_SET_CONTROL_MOVE_REQID,
         axisNum,
         enable);
-
-    if (!result) {
-        printf("sendReceive failed\n");
-        return false;
-    }
-
-    return true;
-
 }
 
 bool AMC100Axis::setControlAutoReset(bool enable) {
-    bool result = controller->sendCommand(
+    return controller->sendCommand(
         "com.attocube.amc.control.setControlAutoReset",
         COMMAND_SET_CONTROL_AUTO_RESET_REQID,
         axisNum,
         enable);
-
-    if (!result) {
-        printf("sendReceive failed\n");
-        return false;
-    }
-
-    return true;
-
 }
 
 bool AMC100Axis::getControlOutput() {
