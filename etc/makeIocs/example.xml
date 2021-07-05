@@ -1,3 +1,9 @@
 <?xml version="1.0" ?>
-<components arch="linux-x86">
+<components arch="linux-x86_64">
+	<asyn.AsynIP input_eos="\n" name="AMC100TS.PORT" output_eos="\n" port="127.0.0.1:9090"/>
+	<amc100.AMC100Controller P="AMC100TEST" R=":CNTL" max_axes="2" name="AMC100TS.CNTL" port="AMC100TS.PORT" timeout="1"/>
+	<amc100.MotorAxis P="AMC100TEST" R=":AX0" axis="0" controller="AMC100TS.CNTL" name="AMC100TS.AX1" timeout="3"/>
+	<amc100.MotorAxis P="AMC100TEST" R=":AX1" axis="1" controller="AMC100TS.CNTL" name="AMC100TS.AX2" timeout="3"/>
+	<motor.basic_asyn_motor ADDR="0" DESC="Axis X" DHLM="10000" DLLM="-10000" EGU="um" M=":X" MRES="0.001" P="AMC100TEST" PORT="AMC100TS.CNTL" PREC="3" TWV="5" VELO="2" name="AMC100TS.M1"/>
+	<motor.basic_asyn_motor ADDR="1" DESC="Axis Y" DHLM="10000" DLLM="-10000" EGU="um" M=":Y" MRES="0.001" P="AMC100TEST" PORT="AMC100TS.CNTL" PREC="3" TWV="5" VELO="2" name="AMC100TS.M2"/>
 </components>
