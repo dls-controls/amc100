@@ -10,9 +10,6 @@
 #include "asynMotorAxis.h"
 class AMC100Controller;
 
-// global constants
-const char AMC100AxesNumbers[] = {0, 1, 2};
-
 class AMC100Axis : public asynMotorAxis
 {
 private:
