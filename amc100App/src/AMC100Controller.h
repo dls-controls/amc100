@@ -57,7 +57,7 @@ private:
 public:
     unsigned int idReq;
 	AMC100Controller(const char *portName, int controllerNum,
-	        const char* serialPortName, int serialPortAddress, int numAxes,
+	        const char* lowlevelPortName, int lowlevelPortAddress, int numAxes,
 	        double movingPollPeriod, double idlePollPeriod);
     virtual ~AMC100Controller();
 
@@ -90,7 +90,7 @@ protected:
 
 private:
     /* Data */
-    asynUser* serialPortUser;
+    asynUser* lowlevelPortUser;
     int controllerNum;
     int connectionPollRequired;
     bool initialized;

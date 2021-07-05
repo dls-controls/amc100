@@ -50,14 +50,14 @@ extern "C" {
 /** Constructor
  * \param[in] portName Asyn port name
  * \param[in] controllerNum The number (address) of the controller in the protocol
- * \param[in] serialPortName Asyn port name of the serial port
- * \param[in] serialPortAddress Asyn address of the serial port (usually 0)
+ * \param[in] lowlevelPortName Asyn port name of the low level port
+ * \param[in] lowlevelPortAddress Asyn address of the low level port (usually 0)
  * \param[in] numAxes Maximum number of axes
  * \param[in] movingPollPeriod The period at which to poll position while moving
  * \param[in] idlePollPeriod The period at which to poll position while not moving
  */
 AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
-        const char* serialPortName, int serialPortAddress, int numAxes,
+        const char* lowlevelPortName, int lowlevelPortAddress, int numAxes,
         double movingPollPeriod, double idlePollPeriod)
     : asynMotorController(portName, numAxes, /*numParams=*/&lastParam-&firstParam-1,
             /*interfaceMask=*/ asynFloat64Mask, /*interruptMask=*/ asynFloat64Mask,
@@ -91,22 +91,25 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexStatusReference, 0);
 
 
-    // Connect to the serial port
-    asynStatus result = pasynOctetSyncIO->connect(serialPortName, serialPortAddress,
-            &serialPortUser, NULL);
+    // Connect to the low level port
+    asynStatus result = pasynOctetSyncIO->connect(lowlevelPortName,
+            lowlevelPortAddress, &lowlevelPortUser, NULL);
 
     if( result != asynSuccess)
     {
-        printf("AMC100Controller: Failed to connect to serial port %s\n", serialPortName);
+        printf("AMC100Controller: Failed to connect to low level port %s\n",
+               lowlevelPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_ERROR,
-                "AMC100Controller: Failed to connect to serial port %s\n",
-                                serialPortName);
+                  "AMC100Controller: Failed to connect to low level port %s\n",
+                  lowlevelPortName);
     }
     else
     {
-        printf("AMC100Controller: connected to serial port %s\n", serialPortName);
+        printf("AMC100Controller: connected to low level port %s\n",
+               lowlevelPortName);
         asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
-                "AMC100Controller: connected to serial port %s\n", serialPortName);
+                  "AMC100Controller: connected to low level port %s\n",
+                  lowlevelPortName);
     }
 
     // Synchronization variables
@@ -247,13 +250,13 @@ asynStatus AMC100Controller::lowlevelWrite(const char *buffer, size_t buffer_len
     const char *functionName = "AMC100Controller::lowlevelWrite";
     double timeout = 0.1;
     size_t nBytes;
-    ioPvt      *pioPvt = (ioPvt *)serialPortUser->userPvt;
+    ioPvt      *pioPvt = (ioPvt *)lowlevelPortUser->userPvt;
     asynStatus status;
-    serialPortUser->timeout = timeout;
+    lowlevelPortUser->timeout = timeout;
     
     epicsMutexLock(sendingLock);
     status = pioPvt->pasynOctet->write(
-        pioPvt->octetPvt, serialPortUser, buffer, buffer_len , &nBytes);
+        pioPvt->octetPvt, lowlevelPortUser, buffer, buffer_len , &nBytes);
     epicsMutexUnlock(sendingLock);
     epicsMutexLock(printLock);
     //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
@@ -273,12 +276,12 @@ asynStatus AMC100Controller::lowlevelRead(char *buffer, size_t buffer_len)
     int eomReason;
     asynStatus status;
     size_t nBytes;
-    ioPvt      *pioPvt = (ioPvt *)serialPortUser->userPvt;
+    ioPvt      *pioPvt = (ioPvt *)lowlevelPortUser->userPvt;
 
-    serialPortUser->timeout = timeout;
+    lowlevelPortUser->timeout = timeout;
 
     status = pioPvt->pasynOctet->read(
-        pioPvt->octetPvt,serialPortUser, buffer, buffer_len, &nBytes, &eomReason);
+        pioPvt->octetPvt,lowlevelPortUser, buffer, buffer_len, &nBytes, &eomReason);
     epicsMutexLock(printLock);
     //asynPrint(this->pasynUserSelf, ASYN_TRACEIO_DEVICE, 
     // printf("%s: buffer=%s status=%d eomReason=%d nbytes=%d\n",
@@ -450,8 +453,8 @@ bool AMC100Controller::sendReceive(const char* tx, size_t txSize,
     epicsThreadSleep(0.05);
 
 
-    // pasynOctetSyncIO->flush(serialPortUser);
-    asynStatus result = pasynOctetSyncIO->writeRead(serialPortUser, (char*)tx, txSize,
+    // pasynOctetSyncIO->flush(lowlevelPortUser);
+    asynStatus result = pasynOctetSyncIO->writeRead(lowlevelPortUser, (char*)tx, txSize,
             (char*)rx, rxSize, /*timeout=*/0.1, &bytesOut, &bytesIn, &eomReason);
     
     if(result != asynSuccess) {
@@ -546,18 +549,18 @@ extern "C"
 /** Create a controller
  * \param[in] portName Asyn port name
  * \param[in] controllerNum The number (address) of the controller in the protocol
- * \param[in] serialPortName Asyn port name of the serial port
- * \param[in] serialPortAddress Asyn address of the serial port (usually 0)
+ * \param[in] lowlevelPortName Asyn port name of the physical port
+ * \param[in] lowlevelPortAddress Asyn address of the physical port (usually 0)
  * \param[in] numAxes Maximum number of axes
  * \param[in] movingPollPeriod The period at which to poll position while moving
  * \param[in] idlePollPeriod The period at which to poll position while not moving
  */
 asynStatus AMC100ControllerConfig(const char *portName, int controllerNum,
-        const char* serialPortName, int serialPortAddress,
+        const char* lowlevelPortName, int lowlevelPortAddress,
         int numAxes, int movingPollPeriod, int idlePollPeriod)
 {
     AMC100Controller* ctlr = new AMC100Controller(portName, controllerNum,
-            serialPortName, serialPortAddress, numAxes,
+            lowlevelPortName, lowlevelPortAddress, numAxes,
             movingPollPeriod/1000.0, idlePollPeriod/1000.0);
     ctlr = NULL;   // To avoid compiler warning
     return asynSuccess;
@@ -593,8 +596,8 @@ asynStatus AMC100AxisConfig(const char* ctlrName, int axisNum)
 
 static const iocshArg AMC100ControllerConfigArg0 = {"port name", iocshArgString};
 static const iocshArg AMC100ControllerConfigArg1 = {"controller number", iocshArgInt};
-static const iocshArg AMC100ControllerConfigArg2 = {"serial port name", iocshArgString};
-static const iocshArg AMC100ControllerConfigArg3 = {"serial port address", iocshArgInt};
+static const iocshArg AMC100ControllerConfigArg2 = {"low level port name", iocshArgString};
+static const iocshArg AMC100ControllerConfigArg3 = {"low level port address", iocshArgInt};
 static const iocshArg AMC100ControllerConfigArg4 = {"number of axes", iocshArgInt};
 static const iocshArg AMC100ControllerConfigArg5 = {"moving poll period (ms)", iocshArgInt};
 static const iocshArg AMC100ControllerConfigArg6 = {"idle poll period (ms)", iocshArgInt};
