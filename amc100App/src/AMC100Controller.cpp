@@ -100,6 +100,8 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     // Connect to the low level port
     asynStatus result = pasynOctetSyncIO->connect(lowlevelPortName,
             lowlevelPortAddress, &lowlevelPortUser, NULL);
+    pasynOctetSyncIO->setInputEos(lowlevelPortUser, "\n", 1);
+    pasynOctetSyncIO->setOutputEos(lowlevelPortUser, "\n", 1);
 
     if( result != asynSuccess)
     {
