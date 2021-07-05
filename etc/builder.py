@@ -7,13 +7,12 @@ from iocbuilder.arginfo import *
 class AMC100Controller(AutoSubstitution, Device):
     LibFileList = ['AMC100']
     DbdFileList = ['AMC100']
-    Dependencies = (Asyn, MotorLib) 
-    
+    Dependencies = (Asyn, MotorLib)
     TemplateFile = 'AMC100Controller.template'
 
     def __init__(self, name, port, P, R, timeout, max_axes,
-            controller_address = 1, asyn_address = 0,
-            moving_poll = 1000, standing_poll = 1000):
+                 controller_address=1, asyn_address=0,
+                 moving_poll=100, standing_poll=100):
         self.name = name
         self.controller_address = controller_address
         self.port = port
@@ -22,12 +21,12 @@ class AMC100Controller(AutoSubstitution, Device):
         self.moving_poll = moving_poll
         self.standing_poll = standing_poll
 
-        self.__super.__init__(P = P, R = R, PORT = name, TIMEOUT = timeout)
+        self.__super.__init__(name=name, P=P, R=R, PORT=name, TIMEOUT=timeout)
 
     def Initialise(self):
-        print 'AMC100ControllerConfig("%(name)s", %(controller_address)d, ' \
-            '"%(port)s", %(asyn_address)d, %(max_axes)d, ' \
-            '%(moving_poll)d, %(standing_poll)d)' % self.__dict__
+        print('AMC100ControllerConfig("%(name)s", %(controller_address)d, ' \
+              '"%(port)s", %(asyn_address)d, %(max_axes)d, ' \
+              '%(moving_poll)d, %(standing_poll)d)' % self.__dict__)
 
     ArgInfo = makeArgInfo(__init__,
         name = Simple('Identifier for this motor instance', str),
@@ -49,18 +48,18 @@ class MotorAxis(AutoSubstitution, Device):
     Dependencies = (AMC100Controller,)
     TemplateFile = 'AMC100Axis.template'
 
-    def __init__(self, controller, axis, P, R, timeout):
+    def __init__(self, name, controller, axis, P, R, timeout):
         self.controller = controller
         self.axis = axis
 
         self.__super.__init__(
-            P = P, R = R, PORT = controller, AXIS = axis,
-            TIMEOUT = timeout)
+            name=name, P=P, R=R, PORT=controller, AXIS=axis, TIMEOUT=timeout)
 
     def Initialise(self):
         print 'AMC100AxisConfig(%(controller)s, %(axis)d)' % self.__dict__
 
     ArgInfo = makeArgInfo(__init__,
+        name = Simple('Name for entry', str),
         controller = Ident('AMC100 Piezo Controller', AMC100Controller),
         axis = Simple('Axis number', int),
         P = Simple('PV names Prefix (for motor record)', str),
