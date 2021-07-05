@@ -50,13 +50,13 @@ AMC100Axis::~AMC100Axis()
 asynStatus AMC100Axis::poll()
 {
     bool result = false;
-    result |= getAmplitude();
-    result |= getFrequency();
     result |= getPosition();
     result |= getStatusMoving();
     result |= getStatusEotFwd();
     result |= getStatusEotBkwd();
     if (_pollCounter % SLOW_POLL_FREQ_CONST == 0) {
+        result |= getAmplitude();
+        result |= getFrequency();
         result |= getReferencePosition();
         result |= getStatusConnected();
         result |= getStatusReference();
