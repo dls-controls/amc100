@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 969
-y 550
-w 600
-h 225
+x 666
+y 362
+w 580
+h 170
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -31,11 +31,11 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 195
-y 165
+x 190
+y 115
 w 80
 h 18
-controlPv "$(P):AXIS2:FREQ_RBV"
+controlPv "$(P):FREQ_RBV"
 font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
@@ -54,172 +54,11 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 195
-y 125
+x 190
+y 70
 w 80
 h 18
-controlPv "$(P):AXIS1:FREQ_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 195
-y 85
-w 80
-h 18
-controlPv "$(P):AXIS0:FREQ_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 105
-y 165
-w 80
-h 18
-controlPv "$(P):AXIS2:AMP_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 105
-y 125
-w 80
-h 18
-controlPv "$(P):AXIS1:AMP_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 105
-y 85
-w 80
-h 18
-controlPv "$(P):AXIS0:AMP_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 10
-y 165
-w 85
-h 18
-controlPv "$(P):AXIS2.DESC"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 10
-y 125
-w 85
-h 18
-controlPv "$(P):AXIS1.DESC"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 10
-y 85
-w 85
-h 18
-controlPv "$(P):AXIS0.DESC"
+controlPv "$(P):AMP_RBV"
 font "arial-medium-r-16.0"
 fontAlign "center"
 fgColor index 15
@@ -238,8 +77,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 375
-y 50
+x 305
+y 70
 w 47
 h 18
 font "arial-medium-r-16.0"
@@ -258,8 +97,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 195
-y 45
+x 15
+y 115
 w 81
 h 36
 font "arial-medium-r-16.0"
@@ -279,8 +118,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 105
-y 45
+x 15
+y 65
 w 75
 h 36
 font "arial-medium-r-16.0"
@@ -294,404 +133,196 @@ value {
 autoSize
 endObjectProperties
 
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 395
+y 70
+w 165
+h 20
+
+beginGroup
+
 # (Static Text)
 object activeXTextClass
 beginObjectProperties
 major 4
 minor 1
 release 1
-x 30
-y 50
-w 32
+x 395
+y 70
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 9
+visPv "$(P):ST_CONNECT"
+visMin "1"
+visMax "2"
+value {
+  "Connected"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 395
+y 70
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P):ST_CONNECT"
+visMin "0"
+visMax "1"
+value {
+  "Disconnected"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 305
+y 110
+w 50
+h 20
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Output"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 190
+y 40
+w 78
 h 18
 font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
 value {
-  "Axis"
+  "Readback"
 }
 autoSize
 endObjectProperties
 
-# (Group)
-object activeGroupClass
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 105
+y 40
+w 55
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Control"
+}
+autoSize
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 6
+release 0
+x 105
+y 70
+w 70
+h 16
+controlPv "$(P):AMP"
+font "arial-bold-r-14.0"
+fgColor index 25
+bgColor index 3
+useDisplayBg
+editable
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "controls"
+endObjectProperties
+
+# (Text Control)
+object activeXTextDspClass
+beginObjectProperties
+major 4
+minor 6
+release 0
+x 105
+y 115
+w 70
+h 16
+controlPv "$(P):FREQ"
+font "arial-bold-r-14.0"
+fgColor index 25
+bgColor index 0
+useDisplayBg
+editable
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+newPos
+objType "controls"
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 405
-y 85
-w 115
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 85
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS0:ST_ENABLED"
-visMin "1"
-visMax "2"
-value {
-  "Enabled"
-}
+x 395
+y 105
+w 165
+h 35
+fgColor index 25
+bgColor index 3
+selectColor index 3
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P):ST_ENABLED"
+indicatorPv "$(P):ST_ENABLED_RBV"
+font "arial-medium-r-14.0"
+orientation "horizontal"
 endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 85
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS0:ST_ENABLED"
-visMin "0"
-visMax "1"
-value {
-  "Not Enabled"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 285
-y 85
-w 110
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 285
-y 85
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS0:ST_CONNECT"
-visMin "1"
-visMax "2"
-value {
-  "Connected"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 285
-y 85
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS0:ST_CONNECT"
-visMin "0"
-visMax "1"
-value {
-  "Disconnected"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 405
-y 125
-w 115
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 125
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS1:ST_ENABLED"
-visMin "1"
-visMax "2"
-value {
-  "Enabled"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 125
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS1:ST_ENABLED"
-visMin "0"
-visMax "1"
-value {
-  "Not Enabled"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 285
-y 125
-w 115
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 283
-y 125
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS1:ST_CONNECT"
-visMin "1"
-visMax "2"
-value {
-  "Connected"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 283
-y 125
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS1:ST_CONNECT"
-visMin "0"
-visMax "1"
-value {
-  "Disconnected"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 405
-y 165
-w 115
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 165
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS2:ST_ENABLED"
-visMin "1"
-visMax "2"
-value {
-  "Enabled"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 405
-y 165
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS2:ST_ENABLED"
-visMin "0"
-visMax "1"
-value {
-  "Not Enabled"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 285
-y 165
-w 115
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 283
-y 165
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):AXIS2:ST_CONNECT"
-visMin "1"
-visMax "2"
-value {
-  "Connected"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 283
-y 165
-w 111
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):AXIS2:ST_CONNECT"
-visMin "0"
-visMax "1"
-value {
-  "Disconnected"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 5
-y 5
-w 635
-h 30
-
-beginGroup
 
 # (Rectangle)
 object activeRectangleClass
@@ -701,7 +332,7 @@ minor 0
 release 0
 x 5
 y 5
-w 590
+w 571
 h 30
 lineColor index 14
 fill
@@ -714,98 +345,16 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 217
+x 215
 y 10
-w 214
-h 21
-font "arial-bold-r-18.0"
-fontAlign "center"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Attocube AMC100 Axes"
-}
-autoSize
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
-# (Byte)
-object ByteClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 525
-y 85
-w 20
-h 20
-controlPv "$(P):AXIS0.MSTA"
-lineColor index 14
-onColor index 15
-offColor index 19
-lineWidth 2
-numBits 1
-shift 14
-endObjectProperties
-
-# (Byte)
-object ByteClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 525
-y 125
-w 20
-h 20
-controlPv "$(P):AXIS1.MSTA"
-lineColor index 14
-onColor index 15
-offColor index 19
-lineWidth 2
-numBits 1
-shift 14
-endObjectProperties
-
-# (Byte)
-object ByteClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 525
-y 165
-w 20
-h 20
-controlPv "$(P):AXIS2.MSTA"
-lineColor index 14
-onColor index 15
-offColor index 19
-lineWidth 2
-numBits 1
-shift 14
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 505
-y 50
-w 56
+w 168
 h 18
 font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
 useDisplayBg
 value {
-  "Homed"
+  "AMC100 Axis $(AXIS)"
 }
 autoSize
 endObjectProperties

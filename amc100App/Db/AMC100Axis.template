@@ -7,6 +7,17 @@
 #% macro, AXIS,  Axis number
 #% macro, TIMEOUT,  Timeout
 
+#% gui, $(name), edm, amc100axis.edl, P=$(P)$(R),AXIS=$(AXIS)
+
+#%archiver 1 Monitor
+record(longout, "$(P)$(R):AMP")
+{
+    field(DESC, "Amplitude in V")
+    field(DTYP, "asynInt32")
+    field(EGU, "V")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE")
+}
+
 #%archiver 1 Monitor
 record(longin, "$(P)$(R):AMP_RBV")
 {
@@ -15,7 +26,16 @@ record(longin, "$(P)$(R):AMP_RBV")
     field(EGU, "V")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
-    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AMPLITUDE_RBV")
+}
+
+#%archiver 1 Monitor
+record(longout, "$(P)$(R):FREQ")
+{
+    field(DESC, "Frequency in Hz")
+    field(DTYP, "asynInt32")
+    field(EGU, "Hz")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))FREQUENCY")
 }
 
 #%archiver 1 Monitor
@@ -26,7 +46,7 @@ record(longin, "$(P)$(R):FREQ_RBV")
     field(EGU, "Hz")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
-    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))FREQUENCY")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))FREQUENCY_RBV")
 }
 
 #%archiver 1 Monitor
@@ -38,16 +58,26 @@ record(ai, "$(P)$(R):REF_POSITION")
 }
 
 #%archiver 1 Monitor
-record(bi, "$(P)$(R):ST_ENABLED")
+record(bi, "$(P)$(R):ST_ENABLED_RBV")
 {
     field(DESC, "Axis Enabled Status")
     field(DTYP, "asynInt32")
     field(PINI, "YES")
     field(SCAN, "I/O Intr")
-    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))ST_ENABLED")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))ST_ENABLED_RBV")
     field(ZNAM, "Not Enabled")
     field(ONAM, "Enabled")
 }
+
+record(bo, "$(P)$(R):ST_ENABLED")
+{
+    field(DESC, "Axis Enabled Status")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))ST_ENABLED")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
 
 #%archiver 1 Monitor
 record(bi, "$(P)$(R):ST_CONNECT")

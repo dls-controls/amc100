@@ -24,6 +24,7 @@ AMC100Axis::AMC100Axis(AMC100Controller* ctlr, int axisNum)
 	, initialized(false)
     , _pollCounter(0)
 {
+    setIntegerParam(controller->indexAxisEnabled, 1);
 }
 
 // Enabled axes, without this we can't move!
@@ -230,7 +231,7 @@ bool AMC100Axis::getControlOutput() {
     // int errorNum = response[0].GetInt();
     // setIntegerParam(indexError, error);
     int axisEnabledStatus = response[1].GetBool();
-    setIntegerParam(controller->indexAxisEnabled, axisEnabledStatus);
+    setIntegerParam(controller->indexAxisEnabledRbv, axisEnabledStatus);
     return result;
 }
 
@@ -279,7 +280,7 @@ bool AMC100Axis::getAmplitude() {
     // int errorNum = response[0].GetInt();
     // setIntegerParam(indexError, error);
     int amplitude = response[1].GetInt();
-    setIntegerParam(controller->indexAmplitude, amplitude / 1000);
+    setIntegerParam(controller->indexAmplitudeRbv, amplitude / 1000);
     return result;
 }
 
@@ -296,7 +297,7 @@ bool AMC100Axis::setAmplitude(int amplitude) {
         return false;
     }
 
-    result = controller->receive(COMMAND_SET_FREQUENCY_REQID, recvBuffer);
+    result = controller->receive(COMMAND_SET_AMPLITUDE_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
@@ -311,6 +312,7 @@ bool AMC100Axis::setAmplitude(int amplitude) {
         return false;
     }
 
+    setIntegerParam(controller->indexAmplitude, amplitude);
     return result;
 }
 
@@ -318,7 +320,7 @@ bool AMC100Axis::getFrequency() {
     char recvBuffer[256];
 
     bool result = controller->sendCommand(
-        "com.attocube.amc.control.getControlFrequency", 
+        "com.attocube.amc.control.getControlFrequency",
         COMMAND_GET_FREQUENCY_REQID,
         axisNum);
 
@@ -345,7 +347,7 @@ bool AMC100Axis::getFrequency() {
     // int errorNum = response[0].GetInt();
     // setIntegerParam(indexError, error);
     int frequency = response[1].GetInt();
-    setIntegerParam(controller->indexFrequency, frequency / 1000);
+    setIntegerParam(controller->indexFrequencyRbv, frequency / 1000);
     return result;
 }
 
@@ -377,6 +379,7 @@ bool AMC100Axis::setFrequency(int frequency) {
         return false;
     }
 
+    setIntegerParam(controller->indexFrequency, frequency);
     return result;
 }
 
@@ -402,7 +405,7 @@ asynStatus AMC100Axis::move(double position, int relative,
         return asynError;
     }
 
-    return result ? asynSuccess : asynError;
+    return asynSuccess;
 }
 
 bool AMC100Axis::getPosition()

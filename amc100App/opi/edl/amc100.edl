@@ -4,9 +4,9 @@ major 4
 minor 0
 release 1
 x 343
-y 474
+y 511
 w 500
-h 200
+h 140
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -145,28 +145,5 @@ nullColor index 0
 useHexPrefix
 newPos
 objType "monitors"
-endObjectProperties
-
-# (Related Display)
-object relatedDisplayClass
-beginObjectProperties
-major 4
-minor 4
-release 0
-x 175
-y 140
-w 150
-h 30
-fgColor index 43
-bgColor index 3
-topShadowColor index 0
-botShadowColor index 14
-font "arial-medium-r-18.0"
-buttonLabel "Axis Info"
-numPvs 4
-numDsps 1
-displayFileName {
-  0 "amc100axis"
-}
 endObjectProperties
 

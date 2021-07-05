@@ -72,9 +72,12 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     createParam(indexConnectedString, asynParamInt32, &indexConnected);
     createParam(indexErrorString, asynParamInt32, &indexError);
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
+    createParam(indexAmplitudeRbvString, asynParamInt32, &indexAmplitudeRbv);
     createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
+    createParam(indexFrequencyRbvString, asynParamInt32, &indexFrequencyRbv);
     createParam(indexFirmwareString, asynParamOctet, &indexFirmware);
     createParam(indexAxisEnabledString, asynParamInt32, &indexAxisEnabled);
+    createParam(indexAxisEnabledRbvString, asynParamInt32, &indexAxisEnabledRbv);
     createParam(indexAxisConnectedString, asynParamInt32, &indexAxisConnected);
     createParam(indexAxisRefPositionString, asynParamFloat64, &indexAxisRefPosition);
     createParam(indexStatusReferenceString, asynParamInt32, &indexStatusReference);
@@ -83,9 +86,12 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexConnected, 0);
     setIntegerParam(indexError, 0);
     setIntegerParam(indexAmplitude, 0);
+    setIntegerParam(indexAmplitudeRbv, 0);
     setIntegerParam(indexFrequency, 0);
+    setIntegerParam(indexFrequencyRbv, 0);
     setStringParam(indexFirmware, "");
-    setIntegerParam(indexAxisEnabled, 0);
+    setIntegerParam(indexAxisEnabled, 1);
+    setIntegerParam(indexAxisEnabledRbv, 1);
     setIntegerParam(indexAxisConnected, 0);
     setDoubleParam(indexAxisRefPosition, 0.0);
     setIntegerParam(indexStatusReference, 0);
@@ -520,16 +526,17 @@ bool AMC100Controller::firstTimeInit()
  */
 asynStatus AMC100Controller::writeInt32(asynUser *pasynUser, epicsInt32 value)
 {
-	/*
     int function = pasynUser->reason;
 
     AMC100Axis* axis = dynamic_cast<AMC100Axis*>(getAxis(pasynUser));
-    if(axis != NULL && function == indexCalibrateSensor)
-    {
-        // Calibrate the sensor of the specified axis
-        axis->calibrateSensor(value);
+    if(axis != NULL) {
+        if (function == indexAmplitude)
+            return axis->setAmplitude(value) ? asynSuccess : asynError;
+        else if (function == indexFrequency)
+            return axis->setFrequency(value) ? asynSuccess : asynError;
+        else if (function == indexAxisEnabled)
+            return axis->setControlOutput(!!value) ? asynSuccess : asynError;
     }
-    */
 
     // no specific handling of parameter changes required for this class
     return asynMotorController::writeInt32(pasynUser, value);

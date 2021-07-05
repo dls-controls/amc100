@@ -16,10 +16,13 @@
 // Strings for extra parameters
 #define indexConnectedString "CONNECTED"
 #define indexAmplitudeString "AMPLITUDE"
+#define indexAmplitudeRbvString "AMPLITUDE_RBV"
 #define indexErrorString "ERROR"
 #define indexFirmwareString "FIRMWARE"
 #define indexFrequencyString "FREQUENCY"
+#define indexFrequencyRbvString "FREQUENCY_RBV"
 #define indexAxisEnabledString "ST_ENABLED"
+#define indexAxisEnabledRbvString "ST_ENABLED_RBV"
 #define indexAxisConnectedString "ST_CONNECTED"
 #define indexAxisRefPositionString "REF_POSITION"
 #define indexStatusReferenceString "STAT_REF"
@@ -80,9 +83,12 @@ protected:
     int indexConnected;
     int indexFirmware;
     int indexAmplitude;
+    int indexAmplitudeRbv;
     int indexError;
     int indexFrequency;
+    int indexFrequencyRbv;
     int indexAxisEnabled;
+    int indexAxisEnabledRbv;
     int indexAxisConnected;
     int indexAxisRefPosition;
     int indexStatusReference;
