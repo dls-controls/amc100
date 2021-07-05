@@ -356,25 +356,25 @@ asynStatus AMC100Controller::poll()
 
         if(!initialized)
         {
-        	initialized = true;
-        	firstTimeInit();
+            initialized = true;
+            firstTimeInit();
             result = getFirmwareVer();
         }
-        for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
-            AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
-            // TODO: will it always return NULL for a non existent axis?
-            if (axis)
-	        axis->poll();
-        }
-
         if(!result)
         {
-        	setIntegerParam(indexConnected, 0);
+            setIntegerParam(indexConnected, 0);
         }
         else
         {
-        	setIntegerParam(indexConnected, 1);
+            setIntegerParam(indexConnected, 1);
         }
+    }
+
+    for(int pollAxis=0; pollAxis < numAxes; pollAxis++) {
+        AMC100Axis *axis = dynamic_cast<AMC100Axis *>(this->getAxis(pollAxis));
+        // TODO: will it always return NULL for a non existent axis?
+        if (axis)
+            axis->poll();
     }
 
     callParamCallbacks();
