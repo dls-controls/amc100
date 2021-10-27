@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 666
-y 362
-w 580
-h 170
+x 1280
+y 544
+w 650
+h 184
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -32,7 +32,7 @@ major 4
 minor 6
 release 0
 x 190
-y 115
+y 120
 w 80
 h 18
 controlPv "$(P):FREQ_RBV"
@@ -55,7 +55,7 @@ major 4
 minor 6
 release 0
 x 190
-y 70
+y 75
 w 80
 h 18
 controlPv "$(P):AMP_RBV"
@@ -78,7 +78,7 @@ major 4
 minor 1
 release 1
 x 305
-y 70
+y 75
 w 47
 h 18
 font "arial-medium-r-16.0"
@@ -98,7 +98,7 @@ major 4
 minor 1
 release 1
 x 15
-y 115
+y 120
 w 81
 h 36
 font "arial-medium-r-16.0"
@@ -119,7 +119,7 @@ major 4
 minor 1
 release 1
 x 15
-y 65
+y 70
 w 75
 h 36
 font "arial-medium-r-16.0"
@@ -140,7 +140,7 @@ major 4
 minor 0
 release 0
 x 395
-y 70
+y 75
 w 165
 h 20
 
@@ -153,7 +153,7 @@ major 4
 minor 1
 release 1
 x 395
-y 70
+y 75
 w 166
 h 20
 font "helvetica-medium-r-14.0"
@@ -175,7 +175,7 @@ major 4
 minor 1
 release 1
 x 395
-y 70
+y 75
 w 166
 h 20
 font "helvetica-medium-r-14.0"
@@ -201,9 +201,9 @@ major 4
 minor 1
 release 1
 x 305
-y 110
-w 50
-h 20
+y 115
+w 48
+h 18
 font "arial-medium-r-16.0"
 fgColor index 14
 bgColor index 0
@@ -221,7 +221,7 @@ major 4
 minor 1
 release 1
 x 190
-y 40
+y 45
 w 78
 h 18
 font "arial-medium-r-16.0"
@@ -241,7 +241,7 @@ major 4
 minor 1
 release 1
 x 105
-y 40
+y 45
 w 55
 h 18
 font "arial-medium-r-16.0"
@@ -261,7 +261,7 @@ major 4
 minor 6
 release 0
 x 105
-y 70
+y 75
 w 70
 h 16
 controlPv "$(P):AMP"
@@ -285,7 +285,7 @@ major 4
 minor 6
 release 0
 x 105
-y 115
+y 120
 w 70
 h 16
 controlPv "$(P):FREQ"
@@ -309,7 +309,7 @@ major 4
 minor 0
 release 0
 x 395
-y 105
+y 110
 w 165
 h 35
 fgColor index 25
@@ -332,7 +332,7 @@ minor 0
 release 0
 x 5
 y 5
-w 571
+w 640
 h 30
 lineColor index 14
 fill
@@ -357,5 +357,44 @@ value {
   "AMC100 Axis $(AXIS)"
 }
 autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 580
+y 80
+w 56
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Homed"
+}
+autoSize
+endObjectProperties
+
+# (Byte)
+object ByteClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 595
+y 110
+w 30
+h 30
+controlPv "$(P).MSTA"
+lineColor index 14
+onColor index 15
+offColor index 19
+lineWidth 2
+numBits 1
+shift 14
 endObjectProperties
 
