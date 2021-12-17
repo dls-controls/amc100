@@ -40,6 +40,8 @@ public:
     bool getStatusMoving();
     bool getStatusEotFwd();
     bool getStatusEotBkwd();
+    bool getControlEotOutputDeactive();
+    bool setControlEotOutputDeactive(bool enable);
     bool setControlAutoReset(bool enable);
     bool setControlMove(bool enable);
     bool getControlOutput();

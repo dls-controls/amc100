@@ -48,6 +48,7 @@
 #define COMMAND_STOP_MOVE_REQID (16)
 #define COMMAND_GET_STATUS_EOT_FWD_REQID (17)
 #define COMMAND_GET_STATUS_EOT_BKWD_REQID (18)
+#define COMMAND_GET_CONTROL_EOT_OUTPUT_REQID (19)
 
 #define MAX_N_REPLIES (20)
 
@@ -92,6 +93,7 @@ protected:
     int indexAxisConnected;
     int indexAxisRefPosition;
     int indexStatusReference;
+    int indexAxisStopEot;
     int lastParam;
 
 private:

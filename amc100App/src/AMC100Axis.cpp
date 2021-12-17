@@ -36,6 +36,9 @@ void AMC100Axis::reconfigure()
     if (!setControlAutoReset(true)) {
         printf("setControlAutoReset failed");
     }
+    if (!setControlEotOutputDeactive(true)) {
+        printf("setControlEotOutputDeactive failed");
+    }
 }
 
 /** Destructor
@@ -243,11 +246,68 @@ bool AMC100Axis::setControlOutput(bool enable) {
         enable);
 
     if (!result) {
-        printf("sendReceive failed\n");
+        printf("sendCommand failed\n");
         return false;
     }
     return true;
 }
+
+// Deactivate output on end of travel
+bool AMC100Axis::setControlEotOutputDeactive(bool enable){
+    bool result = controller->sendCommand(
+        "com.attocube.amc.move.setControlEotOutputDeactive",
+        COMMAND_GET_CONTROL_EOT_OUTPUT_REQID,
+        axisNum,
+        enable);
+    
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+    return true;
+}
+
+bool AMC100Axis::getControlEotOutputDeactive() 
+{
+    char recvBuffer[RECV_BUFFER_LEN];
+    bool result = controller->sendCommand(
+        "com.attocube.amc.move.getControlEotOutputDeactive",
+        COMMAND_GET_CONTROL_EOT_OUTPUT_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    controller->receive(COMMAND_GET_CONTROL_EOT_OUTPUT_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    
+    char *recvPtr = (char *) memchr(recvBuffer, '{', sizeof(recvBuffer));
+    // skip spaces and new line characters at the beginning
+    if (!recvPtr) {
+        printf("Unexpected reply: %s\n", recvBuffer);
+        return false;
+    }
+    rapidjson::ParseResult parseResult = recvDocument.Parse(recvPtr);
+    //recvDocument.Parse(recvBuffer);
+    if (!parseResult) {
+        printf("Could not parse recvBuffer json: %s\n", recvPtr);
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    int axisStopEot = response[1].GetBool();
+    setIntegerParam(controller->indexAxisStopEot, axisStopEot);
+    return result;
+}
+
 
 bool AMC100Axis::getAmplitude() {
     char recvBuffer[256];
@@ -541,7 +601,7 @@ bool AMC100Axis::getStatusEotFwd()
 
 bool AMC100Axis::getStatusEotBkwd()
 {
-        char recvBuffer[RECV_BUFFER_LEN];
+    char recvBuffer[RECV_BUFFER_LEN];
     bool result = controller->sendCommand(
         "com.attocube.amc.status.getStatusEotBkwd",
         COMMAND_GET_STATUS_EOT_BKWD_REQID,
