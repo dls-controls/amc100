@@ -26,6 +26,10 @@
 #define indexAxisConnectedString "ST_CONNECTED"
 #define indexAxisRefPositionString "REF_POSITION"
 #define indexStatusReferenceString "STAT_REF"
+#define indexAxisAutoResetString "AUTO_RESET"
+#define indexAxisAutoResetRbvString "AUTO_RESET_RBV"
+#define indexAxisRefAutoUpdateString "REF_AUTO_UPDATE"
+#define indexAxisRefAutoUpdateRbvString "REF_AUTO_UPDATE_RBV"
 
 
 #define RECV_BUFFER_LEN (256)
@@ -37,20 +41,23 @@
 #define COMMAND_SET_CONTROL_MOVE_REQID (5)
 #define COMMAND_GET_CONTROL_OUTPUT_REQID (6)
 #define COMMAND_SET_CONTROL_OUTPUT_REQID (7)
-#define COMMAND_SET_CONTROL_AUTO_RESET_REQID (8)
-#define COMMAND_ERROR_NUM_TO_STRING_REQID (9)
-#define COMMAND_GET_AMPLITUDE_REQID (10)
-#define COMMAND_GET_FREQUENCY_REQID (11)
-#define COMMAND_SET_AMPLITUDE_REQID (12)
-#define COMMAND_SET_FREQUENCY_REQID (13)
-#define COMMAND_GET_AXIS_CXN_REQID (14)
-#define COMMAND_GET_STATUS_REF_REQID (15)
-#define COMMAND_STOP_MOVE_REQID (16)
-#define COMMAND_GET_STATUS_EOT_FWD_REQID (17)
-#define COMMAND_GET_STATUS_EOT_BKWD_REQID (18)
-#define COMMAND_GET_CONTROL_EOT_OUTPUT_REQID (19)
+#define COMMAND_GET_REF_AUTO_UPDATE_REQID (8)
+#define COMMAND_SET_REF_AUTO_UPDATE_REQID (9)
+#define COMMAND_GET_AUTO_RESET_REQID (10)
+#define COMMAND_SET_AUTO_RESET_REQID (11)
+#define COMMAND_ERROR_NUM_TO_STRING_REQID (12)
+#define COMMAND_GET_AMPLITUDE_REQID (13)
+#define COMMAND_GET_FREQUENCY_REQID (14)
+#define COMMAND_SET_AMPLITUDE_REQID (15)
+#define COMMAND_SET_FREQUENCY_REQID (16)
+#define COMMAND_GET_AXIS_CXN_REQID (17)
+#define COMMAND_GET_STATUS_REF_REQID (18)
+#define COMMAND_STOP_MOVE_REQID (19)
+#define COMMAND_GET_STATUS_EOT_FWD_REQID (20)
+#define COMMAND_GET_STATUS_EOT_BKWD_REQID (21)
+#define COMMAND_GET_CONTROL_EOT_OUTPUT_REQID (22)
 
-#define MAX_N_REPLIES (20)
+#define MAX_N_REPLIES (23)
 
 
 class AMC100Controller : public asynMotorController {
@@ -94,6 +101,10 @@ protected:
     int indexAxisRefPosition;
     int indexStatusReference;
     int indexAxisStopEot;
+    int indexAxisAutoReset;
+    int indexAxisAutoResetRbv;
+    int indexAxisRefUpdate;
+    int indexAxisRefUpdateRbv;
     int lastParam;
 
 private:

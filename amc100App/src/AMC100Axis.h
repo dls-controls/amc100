@@ -42,10 +42,13 @@ public:
     bool getStatusEotBkwd();
     bool getControlEotOutputDeactive();
     bool setControlEotOutputDeactive(bool enable);
+    bool getControlReferenceAutoUpdate();
+    bool setControlReferenceAutoUpdate(bool enable);
+    bool getControlAutoReset();
     bool setControlAutoReset(bool enable);
-    bool setControlMove(bool enable);
     bool getControlOutput();
     bool setControlOutput(bool enable);
+    bool setControlMove(bool enable);
 
 private:
     /* Data */

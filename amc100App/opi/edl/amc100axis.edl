@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1280
-y 544
+x 1068
+y 657
 w 650
-h 184
+h 280
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -396,5 +396,211 @@ offColor index 19
 lineWidth 2
 numBits 1
 shift 14
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 25
+y 185
+w 169
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Auto Reset Reference"
+}
+autoSize
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 20
+y 230
+w 179
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Auto Update Reference"
+}
+autoSize
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 465
+y 227
+w 165
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 465
+y 227
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 9
+visPv "$(P):REF_UPDATE_RBV"
+visMin "1"
+visMax "2"
+value {
+  "Enabled"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 465
+y 227
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P):REF_UPDATE_RBV"
+visMin "0"
+visMax "1"
+value {
+  "Not Enabled"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 240
+y 220
+w 165
+h 35
+fgColor index 25
+bgColor index 3
+selectColor index 3
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P):REF_UPDATE"
+indicatorPv "$(P):REF_UPDATE_RBV"
+font "arial-medium-r-14.0"
+orientation "horizontal"
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 465
+y 180
+w 165
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 465
+y 180
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 9
+visPv "$(P):AUTO_RESET_RBV"
+visMin "1"
+visMax "2"
+value {
+  "Enabled"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 465
+y 180
+w 166
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P):AUTO_RESET_RBV"
+visMin "0"
+visMax "1"
+value {
+  "Not Enabled"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 240
+y 175
+w 165
+h 35
+fgColor index 25
+bgColor index 3
+selectColor index 3
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P):AUTO_RESET"
+indicatorPv "$(P):AUTO_RESET_RBV"
+font "arial-medium-r-14.0"
+orientation "horizontal"
 endObjectProperties
 

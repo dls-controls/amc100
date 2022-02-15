@@ -81,6 +81,10 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     createParam(indexAxisConnectedString, asynParamInt32, &indexAxisConnected);
     createParam(indexAxisRefPositionString, asynParamFloat64, &indexAxisRefPosition);
     createParam(indexStatusReferenceString, asynParamInt32, &indexStatusReference);
+    createParam(indexAxisAutoResetString, asynParamInt32, &indexAxisAutoReset);
+    createParam(indexAxisAutoResetRbvString, asynParamInt32, &indexAxisAutoResetRbv);
+    createParam(indexAxisRefAutoUpdateString, asynParamInt32, &indexAxisRefUpdate);
+    createParam(indexAxisRefAutoUpdateRbvString, asynParamInt32, &indexAxisRefUpdateRbv);
 
     // Initialise our parameters
     setIntegerParam(indexConnected, 0);
@@ -95,6 +99,10 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexAxisConnected, 0);
     setDoubleParam(indexAxisRefPosition, 0.0);
     setIntegerParam(indexStatusReference, 0);
+    setIntegerParam(indexAxisAutoReset, 1);
+    setIntegerParam(indexAxisAutoResetRbv, 0);
+    setIntegerParam(indexAxisRefUpdate, 1);
+    setIntegerParam(indexAxisRefUpdateRbv, 0);
 
 
     // Connect to the low level port
@@ -538,6 +546,10 @@ asynStatus AMC100Controller::writeInt32(asynUser *pasynUser, epicsInt32 value)
             return axis->setFrequency(value) ? asynSuccess : asynError;
         else if (function == indexAxisEnabled)
             return axis->setControlOutput(!!value) ? asynSuccess : asynError;
+        else if (function == indexAxisRefUpdate)
+            return axis->setControlReferenceAutoUpdate(!!value) ? asynSuccess : asynError;
+        else if (function == indexAxisAutoReset)
+            return axis->setControlAutoReset(!!value) ? asynSuccess : asynError;
     }
 
     // no specific handling of parameter changes required for this class

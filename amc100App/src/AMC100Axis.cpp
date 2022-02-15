@@ -36,6 +36,9 @@ void AMC100Axis::reconfigure()
     if (!setControlAutoReset(true)) {
         printf("setControlAutoReset failed");
     }
+    if (!setControlReferenceAutoUpdate(true)) {
+        printf("setControlReferenceAutoUpdate failed");
+    }
     if (!setControlEotOutputDeactive(true)) {
         printf("setControlEotOutputDeactive failed");
     }
@@ -58,6 +61,7 @@ asynStatus AMC100Axis::poll()
     result |= getStatusMoving();
     result |= getStatusEotFwd();
     result |= getStatusEotBkwd();
+
     if (_pollCounter % SLOW_POLL_FREQ_CONST == 0) {
         result |= getAmplitude();
         result |= getFrequency();
@@ -65,6 +69,8 @@ asynStatus AMC100Axis::poll()
         result |= getStatusConnected();
         result |= getStatusReference();
         result |= getControlOutput();
+        result |= getControlReferenceAutoUpdate();
+        result |= getControlAutoReset();
     }
     // TODO: To check for errors
 
@@ -195,20 +201,12 @@ bool AMC100Axis::setControlMove(bool enable) {
         enable);
 }
 
-bool AMC100Axis::setControlAutoReset(bool enable) {
-    return controller->sendCommand(
-        "com.attocube.amc.control.setControlAutoReset",
-        COMMAND_SET_CONTROL_AUTO_RESET_REQID,
-        axisNum,
-        enable);
-}
-
-bool AMC100Axis::getControlOutput() {
+bool AMC100Axis::getControlReferenceAutoUpdate() {
     char recvBuffer[256];
 
     bool result = controller->sendCommand(
-        "com.attocube.amc.control.getControlOutput", 
-        COMMAND_GET_AMPLITUDE_REQID,
+        "com.attocube.amc.control.getControlReferenceAutoUpdate", 
+        COMMAND_GET_REF_AUTO_UPDATE_REQID,
         axisNum);
 
     if (!result) {
@@ -216,7 +214,103 @@ bool AMC100Axis::getControlOutput() {
         return false;
     }
 
-    result = controller->receive(COMMAND_GET_AMPLITUDE_REQID, recvBuffer);
+    result = controller->receive(COMMAND_GET_REF_AUTO_UPDATE_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    int axisRefUpdate = response[1].GetBool();
+    setIntegerParam(controller->indexAxisRefUpdateRbv, axisRefUpdate);
+    return result;
+    
+}
+
+bool AMC100Axis::setControlReferenceAutoUpdate(bool enable) {
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlReferenceAutoUpdate",
+        COMMAND_SET_REF_AUTO_UPDATE_REQID,
+        axisNum,
+        enable);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+    return true;
+}
+
+bool AMC100Axis::getControlAutoReset() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getControlAutoReset", 
+        COMMAND_GET_AUTO_RESET_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_AUTO_RESET_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsArray() || response.Size() != 2) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    int axisAutoReset = response[1].GetBool();
+    setIntegerParam(controller->indexAxisAutoResetRbv, axisAutoReset);
+    return result;
+    
+}
+
+bool AMC100Axis::setControlAutoReset(bool enable) {
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.setControlAutoReset",
+        COMMAND_SET_AUTO_RESET_REQID,
+        axisNum,
+        enable);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+    return true;
+}
+
+bool AMC100Axis::getControlOutput() {
+    char recvBuffer[256];
+
+    bool result = controller->sendCommand(
+        "com.attocube.amc.control.getControlOutput", 
+        COMMAND_GET_CONTROL_OUTPUT_REQID,
+        axisNum);
+
+    if (!result) {
+        printf("sendCommand failed\n");
+        return false;
+    }
+
+    result = controller->receive(COMMAND_GET_CONTROL_OUTPUT_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);

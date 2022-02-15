@@ -58,6 +58,48 @@ record(ai, "$(P)$(R):REF_POSITION")
 }
 
 #%archiver 1 Monitor
+record(bi, "$(P)$(R):REF_UPDATE_RBV")
+{
+    field(DESC, "Update reference status")
+    field(DTYP, "asynInt32")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))REF_AUTO_UPDATE_RBV")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
+record(bo, "$(P)$(R):REF_UPDATE")
+{
+    field(DESC, "Update reference status")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))REF_AUTO_UPDATE")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
+#%archiver 1 Monitor
+record(bi, "$(P)$(R):AUTO_RESET_RBV")
+{
+    field(DESC, "Auto reset status")
+    field(DTYP, "asynInt32")
+    field(PINI, "YES")
+    field(SCAN, "I/O Intr")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AUTO_RESET_RBV")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
+record(bo, "$(P)$(R):AUTO_RESET")
+{
+    field(DESC, "Auto reset status")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AUTO_RESET")
+    field(ZNAM, "Not Enabled")
+    field(ONAM, "Enabled")
+}
+
+#%archiver 1 Monitor
 record(bi, "$(P)$(R):ST_ENABLED_RBV")
 {
     field(DESC, "Axis Enabled Status")
