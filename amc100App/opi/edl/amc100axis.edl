@@ -3,10 +3,10 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1068
-y 657
-w 650
-h 280
+x 516
+y 785
+w 480
+h 385
 font "arial-medium-r-18.0"
 ctlFont "arial-medium-r-18.0"
 btnFont "arial-medium-r-18.0"
@@ -25,112 +25,18 @@ snapToGrid
 gridSize 5
 endScreenProperties
 
-# (Text Monitor)
-object activeXTextDspClass:noedit
+# (Rectangle)
+object activeRectangleClass
 beginObjectProperties
 major 4
-minor 6
+minor 0
 release 0
-x 190
-y 120
-w 80
-h 18
-controlPv "$(P):FREQ_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Text Monitor)
-object activeXTextDspClass:noedit
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 190
-y 75
-w 80
-h 18
-controlPv "$(P):AMP_RBV"
-font "arial-medium-r-16.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "monitors"
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 305
-y 75
-w 47
-h 18
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Status"
-}
-autoSize
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 15
-y 120
-w 81
-h 36
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Frequency"
-  "      Hz"
-}
-autoSize
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 15
-y 70
-w 75
-h 36
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Amplitude"
-  "      V"
-}
-autoSize
+x 255
+y 45
+w 180
+h 190
+lineColor index 14
+fillColor index 0
 endObjectProperties
 
 # (Group)
@@ -139,9 +45,9 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 395
-y 75
-w 165
+x 270
+y 80
+w 150
 h 20
 
 beginGroup
@@ -152,9 +58,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 395
-y 75
-w 166
+x 270
+y 80
+w 151
 h 20
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -174,9 +80,9 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 395
-y 75
-w 166
+x 270
+y 80
+w 151
 h 20
 font "helvetica-medium-r-14.0"
 fontAlign "center"
@@ -200,8 +106,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 305
-y 115
+x 205
+y 335
 w 48
 h 18
 font "arial-medium-r-16.0"
@@ -214,104 +120,16 @@ value {
 autoSize
 endObjectProperties
 
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 190
-y 45
-w 78
-h 18
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Readback"
-}
-autoSize
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 105
-y 45
-w 55
-h 18
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Control"
-}
-autoSize
-endObjectProperties
-
-# (Text Control)
-object activeXTextDspClass
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 105
-y 75
-w 70
-h 16
-controlPv "$(P):AMP"
-font "arial-bold-r-14.0"
-fgColor index 25
-bgColor index 3
-useDisplayBg
-editable
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "controls"
-endObjectProperties
-
-# (Text Control)
-object activeXTextDspClass
-beginObjectProperties
-major 4
-minor 6
-release 0
-x 105
-y 120
-w 70
-h 16
-controlPv "$(P):FREQ"
-font "arial-bold-r-14.0"
-fgColor index 25
-bgColor index 0
-useDisplayBg
-editable
-autoHeight
-limitsFromDb
-nullColor index 0
-useHexPrefix
-newPos
-objType "controls"
-endObjectProperties
-
 # (Choice Button)
 object activeChoiceButtonClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 395
-y 110
-w 165
-h 35
+x 260
+y 335
+w 175
+h 30
 fgColor index 25
 bgColor index 3
 selectColor index 3
@@ -330,9 +148,9 @@ beginObjectProperties
 major 4
 minor 0
 release 0
-x 5
+x 0
 y 5
-w 640
+w 480
 h 30
 lineColor index 14
 fill
@@ -345,7 +163,7 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 215
+x 165
 y 10
 w 168
 h 18
@@ -359,36 +177,16 @@ value {
 autoSize
 endObjectProperties
 
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 580
-y 80
-w 56
-h 18
-font "arial-medium-r-16.0"
-fgColor index 14
-bgColor index 0
-useDisplayBg
-value {
-  "Homed"
-}
-autoSize
-endObjectProperties
-
 # (Byte)
 object ByteClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 595
-y 110
-w 30
-h 30
+x 390
+y 205
+w 20
+h 20
 controlPv "$(P).MSTA"
 lineColor index 14
 onColor index 15
@@ -404,8 +202,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 25
-y 185
+x 80
+y 250
 w 169
 h 18
 font "arial-medium-r-16.0"
@@ -424,8 +222,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 20
-y 230
+x 75
+y 295
 w 179
 h 18
 font "arial-medium-r-16.0"
@@ -438,77 +236,16 @@ value {
 autoSize
 endObjectProperties
 
-# (Group)
-object activeGroupClass
-beginObjectProperties
-major 4
-minor 0
-release 0
-x 465
-y 227
-w 165
-h 20
-
-beginGroup
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 465
-y 227
-w 166
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 15
-bgColor index 9
-visPv "$(P):REF_UPDATE_RBV"
-visMin "1"
-visMax "2"
-value {
-  "Enabled"
-}
-endObjectProperties
-
-# (Static Text)
-object activeXTextClass
-beginObjectProperties
-major 4
-minor 1
-release 1
-x 465
-y 227
-w 166
-h 20
-font "helvetica-medium-r-14.0"
-fontAlign "center"
-fgColor index 20
-bgColor index 9
-visPv "$(P):REF_UPDATE_RBV"
-visMin "0"
-visMax "1"
-value {
-  "Not Enabled"
-}
-endObjectProperties
-
-endGroup
-
-endObjectProperties
-
 # (Choice Button)
 object activeChoiceButtonClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 240
-y 220
-w 165
-h 35
+x 260
+y 290
+w 175
+h 30
 fgColor index 25
 bgColor index 3
 selectColor index 3
@@ -521,15 +258,57 @@ font "arial-medium-r-14.0"
 orientation "horizontal"
 endObjectProperties
 
+# (Choice Button)
+object activeChoiceButtonClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 260
+y 245
+w 175
+h 30
+fgColor index 25
+bgColor index 3
+selectColor index 3
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P):AUTO_RESET"
+indicatorPv "$(P):AUTO_RESET_RBV"
+font "arial-medium-r-14.0"
+orientation "horizontal"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 300
+y 55
+w 92
+h 21
+font "arial-medium-r-18.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Axis Status"
+}
+autoSize
+endObjectProperties
+
 # (Group)
 object activeGroupClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 465
-y 180
-w 165
+x 270
+y 105
+w 150
 h 20
 
 beginGroup
@@ -540,15 +319,15 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 465
-y 180
-w 166
+x 270
+y 105
+w 151
 h 20
 font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 15
 bgColor index 9
-visPv "$(P):AUTO_RESET_RBV"
+visPv "$(P):ST_ENABLED_RBV"
 visMin "1"
 visMax "2"
 value {
@@ -562,15 +341,15 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 465
-y 180
-w 166
+x 270
+y 105
+w 151
 h 20
 font "helvetica-medium-r-14.0"
 fontAlign "center"
 fgColor index 20
 bgColor index 9
-visPv "$(P):AUTO_RESET_RBV"
+visPv "$(P):ST_ENABLED_RBV"
 visMin "0"
 visMax "1"
 value {
@@ -582,25 +361,244 @@ endGroup
 
 endObjectProperties
 
-# (Choice Button)
-object activeChoiceButtonClass
+# (Group)
+object activeGroupClass
 beginObjectProperties
 major 4
 minor 0
 release 0
-x 240
-y 175
-w 165
-h 35
-fgColor index 25
-bgColor index 3
-selectColor index 3
-inconsistentColor index 14
+x 270
+y 130
+w 150
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 130
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 9
+visPv "$(P):REF_UPDATE_RBV"
+visMin "1"
+visMax "2"
+value {
+  "Referenced"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 130
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P):REF_UPDATE_RBV"
+visMin "0"
+visMax "1"
+value {
+  "Not Referenced"
+}
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 270
+y 155
+w 150
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 155
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P).HLS"
+visMin "1"
+visMax "2"
+value {
+  "High Limit"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 155
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P).HLS"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Group)
+object activeGroupClass
+beginObjectProperties
+major 4
+minor 0
+release 0
+x 270
+y 180
+w 150
+h 20
+
+beginGroup
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 180
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P).LLS"
+visMin "1"
+visMax "2"
+value {
+  "Low Limit"
+}
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 270
+y 180
+w 151
+h 20
+font "helvetica-medium-r-14.0"
+fontAlign "center"
+fgColor index 20
+bgColor index 9
+visPv "$(P).LLS"
+visMin "0"
+visMax "1"
+endObjectProperties
+
+endGroup
+
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 325
+y 205
+w 56
+h 18
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Homed"
+}
+autoSize
+endObjectProperties
+
+# (Embedded Window)
+object activePipClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 25
+y 45
+w 215
+h 125
+fgColor index 14
+bgColor index 0
 topShadowColor index 0
 botShadowColor index 14
-controlPv "$(P):AUTO_RESET"
-indicatorPv "$(P):AUTO_RESET_RBV"
-font "arial-medium-r-14.0"
-orientation "horizontal"
+displaySource "file"
+file "motor-embed-small"
+sizeOfs 5
+numDsps 0
+noScroll
+endObjectProperties
+
+# (Related Display)
+object relatedDisplayClass
+beginObjectProperties
+major 4
+minor 4
+release 0
+x 75
+y 180
+w 110
+h 35
+fgColor index 14
+bgColor index 4
+topShadowColor index 2
+botShadowColor index 7
+font "arial-medium-r-18.0"
+buttonLabel "Advanced"
+numPvs 4
+numDsps 1
+displayFileName {
+  0 "amc100Adv"
+}
 endObjectProperties
 
