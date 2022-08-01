@@ -735,12 +735,12 @@ bool AMC100Axis::getStatusEotBkwd()
     return result;
 }
 
-bool AMC100Axis::setReset(int axisNum)  {
+bool AMC100Axis::setAxisReset(bool enable)  {
     bool result = false;
     char recvBuffer[RECV_BUFFER_LEN];
 
     result = controller->sendCommand("com.attocube.amc.control.setReset",
-                         COMMAND_SET_RESET_REQID, 1, axisNum);
+                         COMMAND_SET_AXIS_RESET_REQID, 1, axisNum, enable);
     if (!result) {
         printf("sendCommand json failed\n");
         return false;

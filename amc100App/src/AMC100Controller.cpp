@@ -71,6 +71,7 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     // Create our parameters
     createParam(indexConnectedString, asynParamInt32, &indexConnected);
     createParam(indexErrorString, asynParamInt32, &indexError);
+    createParam(indexAxisResetString, asynParamInt32, &indexAxisReset)
     createParam(indexAmplitudeString, asynParamInt32, &indexAmplitude);
     createParam(indexAmplitudeRbvString, asynParamInt32, &indexAmplitudeRbv);
     createParam(indexFrequencyString, asynParamInt32, &indexFrequency);
@@ -103,6 +104,7 @@ AMC100Controller::AMC100Controller(const char* portName, int controllerNum,
     setIntegerParam(indexAxisAutoResetRbv, 0);
     setIntegerParam(indexAxisRefUpdate, 1);
     setIntegerParam(indexAxisRefUpdateRbv, 0);
+    setIntegerParam(indexAxisReset, 0)
 
 
     // Connect to the low level port

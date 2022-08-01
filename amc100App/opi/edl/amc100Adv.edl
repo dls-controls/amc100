@@ -297,7 +297,7 @@ offColor index 3
 inconsistentColor index 14
 topShadowColor index 0
 botShadowColor index 14
-controlPv "$(P):RESET"
+controlPv "$(P):AXIS_RESET"
 onLabel "RESET AXIS"
 offLabel "RESET AXIS"
 3d

@@ -108,7 +108,7 @@ record(bo, "$(P)$(R):AUTO_RESET")
     field(ONAM, "Enabled")
 }
 
-record(bo, "$(P)$(R):RESET")
+record(ao, "$(P)$(R):AXIS_RESET")
 {
     field(DESC, "Axis reset status")
     field(DTYP, "asynInt32")

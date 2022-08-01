@@ -18,7 +18,6 @@
 #define indexAmplitudeString "AMPLITUDE"
 #define indexAmplitudeRbvString "AMPLITUDE_RBV"
 #define indexErrorString "ERROR"
-#define indexAxisResetString "RESET"
 #define indexFirmwareString "FIRMWARE"
 #define indexFrequencyString "FREQUENCY"
 #define indexFrequencyRbvString "FREQUENCY_RBV"
@@ -32,6 +31,7 @@
 #define indexAxisAutoResetRbvString "AUTO_RESET_RBV"
 #define indexAxisRefAutoUpdateString "REF_AUTO_UPDATE"
 #define indexAxisRefAutoUpdateRbvString "REF_AUTO_UPDATE_RBV"
+#define indexAxisResetString "AXIS_RESET"
 
 
 #define RECV_BUFFER_LEN (256)
@@ -58,7 +58,7 @@
 #define COMMAND_GET_STATUS_EOT_FWD_REQID (20)
 #define COMMAND_GET_STATUS_EOT_BKWD_REQID (21)
 #define COMMAND_GET_CONTROL_EOT_OUTPUT_REQID (22)
-#define COMMAND_SET_RESET_REQID (23)
+#define COMMAND_SET_AXIS_RESET_REQID (23)
 
 #define MAX_N_REPLIES (99)
 
@@ -104,6 +104,7 @@ protected:
     int indexAxisRefPosition;
     int indexStatusReference;
     int indexAxisStopEot;
+    int indexAxisReset;
     int indexAxisAutoReset;
     int indexAxisAutoResetRbv;
     int indexAxisRefUpdate;
