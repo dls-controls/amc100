@@ -3,8 +3,8 @@ beginScreenProperties
 major 4
 minor 0
 release 1
-x 1656
-y 518
+x 4233
+y 1516
 w 350
 h 250
 font "arial-medium-r-18.0"
@@ -66,8 +66,8 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 210
-y 145
+x 215
+y 130
 w 80
 h 18
 controlPv "$(P):FREQ_RBV"
@@ -89,8 +89,8 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 210
-y 100
+x 215
+y 85
 w 80
 h 18
 controlPv "$(P):AMP_RBV"
@@ -112,8 +112,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 35
-y 145
+x 40
+y 120
 w 81
 h 36
 font "arial-medium-r-16.0"
@@ -133,8 +133,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 35
-y 95
+x 40
+y 75
 w 75
 h 36
 font "arial-medium-r-16.0"
@@ -154,8 +154,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 210
-y 70
+x 215
+y 55
 w 78
 h 18
 font "arial-medium-r-16.0"
@@ -174,8 +174,8 @@ beginObjectProperties
 major 4
 minor 1
 release 1
-x 125
-y 70
+x 130
+y 55
 w 55
 h 18
 font "arial-medium-r-16.0"
@@ -194,8 +194,8 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 125
-y 100
+x 130
+y 85
 w 70
 h 16
 controlPv "$(P):AMP"
@@ -218,8 +218,8 @@ beginObjectProperties
 major 4
 minor 6
 release 0
-x 125
-y 145
+x 130
+y 130
 w 70
 h 16
 controlPv "$(P):FREQ"
@@ -233,6 +233,75 @@ limitsFromDb
 nullColor index 0
 useHexPrefix
 newPos
+objType "controls"
+endObjectProperties
+
+# (Text Monitor)
+object activeXTextDspClass:noedit
+beginObjectProperties
+major 4
+minor 6
+release 0
+x 130
+y 175
+w 165
+h 20
+controlPv "$(P):POSITION"
+font "arial-medium-r-16.0"
+fontAlign "center"
+fgColor index 15
+bgColor index 9
+autoHeight
+limitsFromDb
+nullColor index 0
+useHexPrefix
+showUnits
+newPos
+objType "monitors"
+endObjectProperties
+
+# (Static Text)
+object activeXTextClass
+beginObjectProperties
+major 4
+minor 1
+release 1
+x 50
+y 165
+w 61
+h 36
+font "arial-medium-r-16.0"
+fgColor index 14
+bgColor index 0
+useDisplayBg
+value {
+  "Position"
+  "    mm"
+}
+autoSize
+endObjectProperties
+
+# (Button)
+object activeButtonClass
+beginObjectProperties
+major 4
+minor 1
+release 0
+x 50
+y 210
+w 250
+h 25
+fgColor index 14
+onColor index 7
+offColor index 3
+inconsistentColor index 14
+topShadowColor index 0
+botShadowColor index 14
+controlPv "$(P):RESET"
+onLabel "RESET AXIS"
+offLabel "RESET AXIS"
+3d
+font "arial-medium-r-18.0"
 objType "controls"
 endObjectProperties
 

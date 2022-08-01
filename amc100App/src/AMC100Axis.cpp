@@ -735,6 +735,37 @@ bool AMC100Axis::getStatusEotBkwd()
     return result;
 }
 
+bool AMC100Axis::setReset(int axisNum)  {
+    bool result = false;
+    char recvBuffer[RECV_BUFFER_LEN];
+
+    result = controller->sendCommand("com.attocube.amc.control.setReset",
+                         COMMAND_SET_RESET_REQID, 1, axisNum);
+    if (!result) {
+        printf("sendCommand json failed\n");
+        return false;
+    }
+    controller->receive(COMMAND_SET_RESET_REQID, recvBuffer);
+
+    rapidjson::Document recvDocument;
+    recvDocument.Parse(recvBuffer);
+    if (recvDocument.Parse(recvBuffer).HasParseError()) {
+        printf("Could not parse recvBuffer json\n");
+        return false;
+    }
+
+    rapidjson::Value& response = recvDocument["result"];
+    if (!response.IsString()) {
+        printf("Didn't return expected type\n");
+        return false;
+    }
+
+    const char* error = response[0].GetString();
+    setStringParam(controller->indexError, error);
+
+    return result;
+}
+
 /** Jog axis command
  * \param[in] minVelocity The minimum velocity during the move
  * \param[in] maxVelocity The maximum velocity during the move

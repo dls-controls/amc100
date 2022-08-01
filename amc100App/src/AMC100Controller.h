@@ -18,12 +18,14 @@
 #define indexAmplitudeString "AMPLITUDE"
 #define indexAmplitudeRbvString "AMPLITUDE_RBV"
 #define indexErrorString "ERROR"
+#define indexAxisResetString "RESET"
 #define indexFirmwareString "FIRMWARE"
 #define indexFrequencyString "FREQUENCY"
 #define indexFrequencyRbvString "FREQUENCY_RBV"
 #define indexAxisEnabledString "ST_ENABLED"
 #define indexAxisEnabledRbvString "ST_ENABLED_RBV"
 #define indexAxisConnectedString "ST_CONNECTED"
+#define indexAxisPositionString "POSITION"
 #define indexAxisRefPositionString "REF_POSITION"
 #define indexStatusReferenceString "STAT_REF"
 #define indexAxisAutoResetString "AUTO_RESET"
@@ -56,8 +58,9 @@
 #define COMMAND_GET_STATUS_EOT_FWD_REQID (20)
 #define COMMAND_GET_STATUS_EOT_BKWD_REQID (21)
 #define COMMAND_GET_CONTROL_EOT_OUTPUT_REQID (22)
+#define COMMAND_SET_RESET_REQID (23)
 
-#define MAX_N_REPLIES (23)
+#define MAX_N_REPLIES (99)
 
 
 class AMC100Controller : public asynMotorController {

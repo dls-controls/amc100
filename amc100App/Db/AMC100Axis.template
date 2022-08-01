@@ -50,12 +50,21 @@ record(longin, "$(P)$(R):FREQ_RBV")
 }
 
 #%archiver 1 Monitor
+record(ai, "$(P)$(R):POSITION")
+{
+    field(DESC, "Position")
+    field(DTYP, "asynFloat64")
+    field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))POSITION")
+}
+
+#%archiver 1 Monitor
 record(ai, "$(P)$(R):REF_POSITION")
 {
     field(DESC, "Reference Position")
     field(DTYP, "asynFloat64")
     field(INP, "@asyn($(PORT),$(AXIS),$(TIMEOUT))REF_POSITION")
 }
+
 
 #%archiver 1 Monitor
 record(bi, "$(P)$(R):REF_UPDATE_RBV")
@@ -97,6 +106,13 @@ record(bo, "$(P)$(R):AUTO_RESET")
     field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))AUTO_RESET")
     field(ZNAM, "Not Enabled")
     field(ONAM, "Enabled")
+}
+
+record(bo, "$(P)$(R):RESET")
+{
+    field(DESC, "Axis reset status")
+    field(DTYP, "asynInt32")
+    field(OUT, "@asyn($(PORT),$(AXIS),$(TIMEOUT))RESET")
 }
 
 #%archiver 1 Monitor

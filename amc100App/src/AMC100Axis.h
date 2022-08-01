@@ -49,6 +49,7 @@ public:
     bool getControlOutput();
     bool setControlOutput(bool enable);
     bool setControlMove(bool enable);
+    bool setReset(int axisNum);
 
 private:
     /* Data */

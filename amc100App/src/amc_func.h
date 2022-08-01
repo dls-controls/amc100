@@ -50,11 +50,10 @@
 // getActorType
 {"jsonrpc": "2.0", "method": "com.attocube.amc.control.getActorType", "params": [axis_number], "id": 12}
 {"jsonrpc": "2.0", "result": [error_number, positioner_type], "id": 12}
-
+*/
 // set Reset
 {"jsonrpc": "2.0", "method": "com.attocube.amc.control.setReset", "params": [axis_number], "id": 13}
 {"jsonrpc": "2.0", "result": [error_number], "id": 13}
-*/
 
 // control Move
 {"jsonrpc": "2.0", "method": "com.attocube.amc.control.setControlMove", "params": [axis_number, enable], "id": 14}
