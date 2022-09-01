@@ -740,12 +740,12 @@ bool AMC100Axis::setAxisReset(bool enable)  {
     char recvBuffer[RECV_BUFFER_LEN];
 
     result = controller->sendCommand("com.attocube.amc.control.setReset",
-                         COMMAND_SET_AXIS_RESET_REQID, 1, axisNum, enable);
+                         COMMAND_SET_AXIS_RESET_REQID, 1, axisNum);
     if (!result) {
         printf("sendCommand json failed\n");
         return false;
     }
-    controller->receive(COMMAND_SET_RESET_REQID, recvBuffer);
+    controller->receive(COMMAND_SET_AXIS_RESET_REQID, recvBuffer);
 
     rapidjson::Document recvDocument;
     recvDocument.Parse(recvBuffer);
